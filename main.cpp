@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include "hashTable.h"
 #include "file_functions.h"
 
 using namespace std;
@@ -19,11 +20,13 @@ int main(int argc, char* argv[]){
     int finish = 0;
     bool first_iteration = true;
     string token;                   
-    int dimensions = -1;            //DIMENSIONS OF SPACE AS GIVEN BY THE INPUT FILE         
+    int dimensions = -1;            //DIMENSIONS OF SPACE AS GIVEN BY THE INPUT FILE    
+    unsigned int number_of_points = 0;   
+    int buckets; 
+    int points_divider = 16;         //USED TO GET TOTAL POINTS IN EACH HASH TABLE 
     
-    vector<vector<int>> point_vector;
+    vector<vector <int> > point_vector;
 
-    
     open_file(&input_file, argv[1], fstream::in); 
     
     while(getline(input_file, line)){                       //READ FILE LINE BY LINE
@@ -48,9 +51,18 @@ int main(int argc, char* argv[]){
             }
         } 
         point_vector.push_back(point);
+        number_of_points++;
         first_iteration = false;
     }
 
+    buckets = number_of_points/points_divider;
+
+    //INITIALIZE L HASHTABLES WITH HASHTABLESIZE BUCKETS AND ZERO POINTS IN EACH BUCKET
+    hashTable_initialization(L, buckets);
+    //JUST FOR TESTING PURPOSES
+    hashTable_print_data();
+
+    
     close_file(&input_file);
    
     return 0;
