@@ -17,7 +17,7 @@ int main(int argc, char* argv[]){
     string line;
     int start;
     int finish = 0;
-    int first_iteration = 1;
+    bool first_iteration = true;
     string token;                   
     int dimensions = -1;            //DIMENSIONS OF SPACE AS GIVEN BY THE INPUT FILE         
     
@@ -43,12 +43,12 @@ int main(int argc, char* argv[]){
             }
             
             start = finish + 1;
-            if(first_iteration == 1){
+            if(first_iteration == true){
                 dimensions++;                               //KEEP TRACK OF THE DIMENSIONS OF GIVEN INSTANCE
             }
         } 
         point_vector.push_back(point);
-        first_iteration = 0;
+        first_iteration = false;
     }
 
     close_file(&input_file);
