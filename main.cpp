@@ -2,7 +2,9 @@
 #include <string>
 #include <vector>
 #include <fstream>
+
 #include "hashTable.h"
+#include "vector_ops.h"
 #include "file_functions.h"
 
 using namespace std;
@@ -61,6 +63,10 @@ int main(int argc, char* argv[]){
     hashTable_initialization(L, buckets);
     //JUST FOR TESTING PURPOSES
     hashTable_print_data();
+    
+    //INTERACT WITH VECTOR-OPS LIBRARY
+    v_vectors_assign_coordinances(k, dimensions);
+    v_vectors_printdata();
 
     
     close_file(&input_file);
