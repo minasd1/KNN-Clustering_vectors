@@ -26,6 +26,31 @@ void v_vectors_assign_coordinances(int num_of_vectors, int dimensions,
     }
 }
 
+//INITIALIZE THE POINTS ID VECTOR
+void initialize_points_ID_vector(int num_of_points, int L){
+    points_ID_vector.resize(num_of_points, vector<int>(L));
+}
+
+//INSERT POINT'S ID VALUES TO ID VECTOR
+//INDEX VALUE IS THE ID VALUE OF THE POINT (KEY)
+void points_ID_push_back(int index_value, vector<int> point_id_values){
+
+    for(int i = 0; i < points_ID_vector[index_value].size(); i++){
+        points_ID_vector[index_value].push_back(point_id_values[i]);
+    }
+}
+
+//GET ID VALUE OF A POINT CORRESPONDING TO A SPECIFIC HASH TABLE
+//K IS THE HASHTABLE THAT CONCERNS US - (NUMBER OF G-FUNCTION USED IN THIS HASHTABLE ({0,1,...,L})
+//INDEX_VALUE IS THE ID(KEY_VALUE) OF THE POINT
+int get_point_id_value(int index_value, int k){
+
+    int id_value;
+    id_value = points_ID_vector[index_value][k];
+
+    return id_value;
+}
+
 //CREATE A VECTOR t WHICH CONTAINS k RANDOM FLOATS IN RANGE [0,w)
 //THE RANDOM FLOATS COME FROM THE UNIFORM DISTRIBUTION ~Unif[0,w)
 void create_vector_t(int k, int w, std::default_random_engine& generator)
