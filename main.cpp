@@ -33,8 +33,6 @@ int main(int argc, char* argv[]){
     int buckets;
     int points_divider = 16;         //USED TO GET TOTAL POINTS IN EACH HASH TABLE
     vector<int> p1, p2;             //TWO POINTS ON THE PLANE
-    vector<vector<int>> v_vectors;  //INSTEAD OF STATIC DECLARATION IN vector_ops.h
-    vector<float> t;                //t VALUES OF H FUNCTION
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator(seed);
@@ -90,18 +88,18 @@ int main(int argc, char* argv[]){
 
     //MAKE 10 V_VECTORS WITH 20 GAUSSIAN RANDOM COORDINATES
     //AND 10 t INTEGERS WITH UNIFORM DISTRIBUTION ~UNIF[0,6)
-    v_vectors_assign_coordinances(v_vectors, 10, 20, generator);
-    v_vectors_printdata(v_vectors);
+    v_vectors_assign_coordinances(10, 20, generator);
+    v_vectors_printdata();
     cout << endl;
-    create_vector_t(t, 10, 6, generator);
-    print_vector_t(t);
+    create_vector_t(10, 6, generator);
+    print_vector_t();
 
     //PRINT THE EUCLEDIAN AND MANHATTAN DISTANCE OF P1, P2
     float dista;
-    dista= dist(p1, p2, 2);
+    dista= calculate_distance(p1, p2, 2);
     cout << "EUCLEDIAN DISTANCE p1(" << p1[0] << "," << p1[1] << "), p2(" << p2[0] << "," << p2[1] << ")" << ": "
          << dista << endl;
-    dista= dist(p1, p2, 1);
+    dista= calculate_distance(p1, p2, 1);
     cout << "MANHATTAN DISTANCE p1(" << p1[0] << "," << p1[1] << "), p2(" << p2[0] << "," << p2[1] << ")" << ": "
          << dista << endl;
 

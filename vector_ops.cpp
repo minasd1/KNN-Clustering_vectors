@@ -2,19 +2,19 @@
 
 
 //SET NUMBER AND SIZE OF V-VECTORS
-void v_vectors_initialization(vector<vector<int>>& v_vectors, int num_of_v_vectors, int dimensions){
+void v_vectors_initialization(int num_of_v_vectors, int dimensions){
     v_vectors.resize(num_of_v_vectors, vector<int>(dimensions));
 }
 
 //ASSIGN COORDINANCES TO EACH VECTOR V
 //THE COORDINATES COME FROM THE GAUSSIAN DISTRIBUTION ~N(0,1)
-void v_vectors_assign_coordinances(vector<vector<int>>& v_vectors, int num_of_vectors, int dimensions,
+void v_vectors_assign_coordinances(int num_of_vectors, int dimensions,
                                    std::default_random_engine& generator)
 {
     int rand_int;
     normal_distribution<double> distribution(0,1);
     //INITIALIZE THE VECTORS
-    v_vectors_initialization(v_vectors, num_of_vectors, dimensions);
+    v_vectors_initialization(num_of_vectors, dimensions);
 
     //ASSING VALUES USING RANDOM - INSTEAD POISSON DISTRIBUTION SHOULD BE USED
     for (int i = 0; i < v_vectors.size(); i++) {
@@ -28,7 +28,7 @@ void v_vectors_assign_coordinances(vector<vector<int>>& v_vectors, int num_of_ve
 
 //CREATE A VECTOR t WHICH CONTAINS k RANDOM FLOATS IN RANGE [0,w)
 //THE RANDOM FLOATS COME FROM THE UNIFORM DISTRIBUTION ~Unif[0,w)
-void create_vector_t(vector<float>& t, int k, int w, std::default_random_engine& generator)
+void create_vector_t(int k, int w, std::default_random_engine& generator)
 {
     int i;
     float rand_float;
@@ -51,7 +51,7 @@ int calculate_dot_product(vector <int>& point, vector <int>& d_vector){
 }
 
 //PRINT CONTENTS OF V-VECTORS - USED FOR CHECKING PURPOSES
-void v_vectors_printdata(vector<vector<int>>& v_vectors){
+void v_vectors_printdata(){
     for (int i = 0; i < v_vectors.size(); i++) {
         for (int j = 0; j < v_vectors[i].size(); j++){
             cout<< v_vectors[i][j] << " ";
@@ -61,7 +61,7 @@ void v_vectors_printdata(vector<vector<int>>& v_vectors){
 }
 
 //PRINT CONTENTS OF t-VECTORS - USED FOR CHECKING PURPOSES
-void print_vector_t(vector<float>& t){
+void print_vector_t(){
     for (int i = 0; i < t.size(); i++) {
         cout << t[i] << " ";
     }
@@ -69,15 +69,15 @@ void print_vector_t(vector<float>& t){
 }
 
 //COMPUTES THE DISTANCE BETWEEN 2 VECTORS USING THE k-NORM
-float dist(vector<int>p1, vector<int>p2, int k=2)
+float calculate_distance(vector<int>& point1, vector<int>& point2, int k=2)
 {
-    float sum= 0.0;
-    int i;
+    float distance = 0.0;
+    int sum = 0;
 
-    for (i=0 ; i < p1.size() ; i++) {
-        sum+= pow(abs(p1[i]-p2[i]), k);
+    for (int i=0 ; i < point1.size() ; i++) {
+        sum+= pow(abs(point1[i]-point2[i]), k);
     }
-    sum= pow(sum, 1.0/(float)k);
+    distance = pow(sum, 1.0/(float)k);
 
-    return sum;
+    return distance;
 }
