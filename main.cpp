@@ -68,6 +68,8 @@ int main(int argc, char* argv[]){
     v_vectors_assign_coordinances(k, dimensions);
     v_vectors_printdata();
 
+    int distance = calculate_distance(point_vector[0], point_vector[1], 2);
+    cout << "distance between the 2 points is: " << distance << endl;
     
     close_file(&input_file);
    

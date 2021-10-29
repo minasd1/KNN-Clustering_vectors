@@ -33,6 +33,21 @@ int calculate_dot_product(vector <int>& point, vector <int>& d_vector){
     return product;
 }
 
+//CALCULATE EUCLIDEAN DISTANCE BETWEEN TWO POINTS
+int calculate_distance(vector <int>& point1, vector <int>& point2, int metric){
+    int distance = 0;
+    int sum = 0;
+
+    for(int i = 1; i < point1.size(); i++){
+        //METRIC = 2 FOR EUCLIDEAN DISTANCE
+        sum = sum + pow(point1[i] - point2[i], metric);
+    }
+
+    distance = pow(sum, 1.0/metric);
+
+    return distance;
+}
+
 //PRINT CONTENTS OF V-VECTORS - USED FOR CHECKING PURPOSES
 void v_vectors_printdata(){
     for (int i = 0; i < v_vectors.size(); i++) {
