@@ -13,6 +13,7 @@ void hashTable_push_back(vector<int>& g,int key_val){
 
     for(int i = 0; i < HashTables.size(); i++){
         HashTables[i][g[i]].push_back(key_val);
+        //HashTables[i][g[i]].end() = key_val;
     }
 }
 
