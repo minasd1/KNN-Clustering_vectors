@@ -26,6 +26,8 @@ const int R = 10000;
 
 int main(int argc, char* argv[]){
     fstream input_file;             //FILE WE READ INPUT FROM
+    fstream query_file;             //FILE WE READ QUERIES FROM
+    fstream output_file;            //FILE TO WRITE OUTPUT TO
     int point_id;
     string line;
     int start;
@@ -92,25 +94,54 @@ int main(int argc, char* argv[]){
 
     hash_vector.clear();
 
-    vector<int> query_point;
-    for(int i = 0; i < dimensions; i++){
+    //vector<int> query_point;
+    //OPEN FILE TO READ QUERY FILES FROM
+    open_file(&query_file, argv[2], fstream::in);
 
-        query_point.push_back(i);
+    //OPEN FILE TO WRITE RESULTS TO
+    open_file(&output_file, argv[3], fstream::out);
+
+    finish = 0;
+
+    while(getline(query_file, line)){                       //READ QUERY FILE LINE BY LINE
+
+        vector<int> query_point;
+        start = 0;
+        while(start < line.size()){                         //TOKENIZE EVERY LINE IN IT'S SEPERATED STRINGS
+            finish = line.find_first_of(' ', start);
+
+            if(finish == string::npos){
+
+                finish = line.size();
+            }
+
+            if(start < line.size() - 1){
+                token = line.substr(start, finish - start);
+                query_point.push_back(stoi(token));               //CONVERT THE STRINGS TO INTEGERS AND PASS THEM TO QUERY POINT VECTOR
+            }
+
+            start = finish + 1;
+
+        }
+
+        g.hash(query_point, hash_vector, 1);
+        vector<int> points_in_range = range_search(hash_vector, 1000, query_point);
+
+        output_file << "Query: " << query_point[0] << endl;
+        output_file << "R-near neighbors:" << endl;
+
+        //PRINT IDS OF POINTS IN RANGE
+        for(int i = 0; i < points_in_range.size(); i++){
+
+            output_file << points_in_range[i] << endl;
+        }
+
+        hash_vector.clear();
     }
-    g.hash(query_point, hash_vector, 1);
-
-    vector<int> points_in_range = range_search(hash_vector, 1000, query_point);
-
-    cout << "Points in range:" << endl;
-    cout << "Number of points in range is: " << points_in_range.size() << endl;
-
-    //PRINT IDS OF POINTS IN RANGE
-    //for(int i = 0; i < points_in_range.size(); i++){
-
-        //cout << points_in_range[i] << endl;
-    //}
 
 
+    close_file(&output_file);
+    close_file(&query_file);
     close_file(&input_file);
 
     return 0;
