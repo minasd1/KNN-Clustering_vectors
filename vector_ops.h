@@ -9,8 +9,16 @@
 
 using namespace std;
 
+//A VECTOR OF THE POINTS READ FROM INPUT FILE
+static vector<vector <int> > point_vector;
+
 //EVERY POINT HAS A COLLECTION OF L ID VALUES
 static vector<vector<int>> points_ID_vector;
+
+/*-------------------------POINT VECTOR FUNCTIONS------------------------*/
+void point_vector_insert_point(vector<int>& point);
+vector<int> point_vector_get_point(int point_id);
+
 
 /*-------------------------V_VECTOR FUNCTIONS----------------------------*/
 void v_vectors_initialization(vector<vector<int>>& v_vectors, int num_of_v_vectors, int dimensions);
@@ -28,8 +36,8 @@ void points_ID_push_back(int index_value, vector<int>& point_id_values);
 int get_point_id_value(int index_value, int k);
 
 /*--------------------OPERATIONS BETWEEN VECTORS FUNCTIONS-----------------*/
-int calculate_dot_product(vector <int>& point, vector <int>& v);
-float calculate_distance(vector<int>& point1, vector<int>& point2, int k);
+int calculate_dot_product(const vector <int>& point, vector <int>& v);
+float calculate_distance(vector<int>& point1, const vector<int>& point2, int k=2);
 
 
 #endif

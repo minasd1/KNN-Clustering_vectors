@@ -37,7 +37,7 @@ G::G(int k_num, int dim, engine gen, int win, int m_mod, int tab_s, int l_num)
 }
 
 //RETURNS A VECTOR THAT CONTAINS THE ID OF A GIVEN POINT FOR EVERY HASH FUNCTION
-void G::id(vector<int>& point, vector<int>& id_vector, bool is_query)
+void G::id(const vector<int>& point, vector<int>& id_vector, bool is_query)
 {
     vector<int> ids;
     int i, j, sum, h, id;
@@ -49,7 +49,7 @@ void G::id(vector<int>& point, vector<int>& id_vector, bool is_query)
             sum+= r[i][j]*h;
         }
         id= mod(sum, m);
-        cout << "MOD (" << sum << " " << m << ")= " << id << endl; //CHECKING PURPOSE, TO BE REMOVED
+        //cout << "MOD (" << sum << " " << m << ")= " << id << endl; //CHECKING PURPOSE, TO BE REMOVED
         ids.push_back(id);
     }
     
@@ -67,7 +67,7 @@ void G::id(vector<int>& point, vector<int>& id_vector, bool is_query)
 }
 
 //RETURNS A VECTOR THAT CONTAINS THE HASH VALUE OF A GIVEN POINT FOR EVERY HASH FUNCTION
-void G::hash(vector<int>& point, vector<int>& hash_vector, bool is_query)
+void G::hash(const vector<int>& point, vector<int>& hash_vector, bool is_query)
 {
     int i;
     vector<int> hash_values;

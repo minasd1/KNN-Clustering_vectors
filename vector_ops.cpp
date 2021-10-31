@@ -1,5 +1,17 @@
 #include "vector_ops.h"
 
+//INSERT A POINT TO POINT VECTOR
+void point_vector_insert_point(vector<int>& point){
+
+    point_vector.push_back(point);
+}
+
+//GET A POINT FROM POINT VECTOR
+vector<int> point_vector_get_point(int point_id){
+
+    return point_vector[point_id];
+}
+
 
 //SET NUMBER AND SIZE OF V-VECTORS
 void v_vectors_initialization(vector<vector<int>>& v_vectors, int num_of_v_vectors, int dimensions){
@@ -89,7 +101,7 @@ int get_point_id_value(int index_value, int k){
 }
 
 //CALCULATE DOT PRODUCT OF TWO VECTORS
-int calculate_dot_product(vector <int>& point, vector <int>& d_vector){
+int calculate_dot_product(const vector <int>& point, vector <int>& d_vector){
     int product = 0;
     for(int i = 1; i < point.size(); i++){
         product = product + point[i] * d_vector[i-1];
@@ -98,12 +110,12 @@ int calculate_dot_product(vector <int>& point, vector <int>& d_vector){
 }
 
 //COMPUTES THE DISTANCE BETWEEN 2 VECTORS USING THE k-NORM
-float calculate_distance(vector<int>& point1, vector<int>& point2, int k=2)
+float calculate_distance(vector<int>& point1, const vector<int>& point2, int k)
 {
     float distance = 0.0;
     int sum = 0;
 
-    for (int i=0 ; i < point1.size() ; i++) {
+    for (int i=1 ; i < point1.size() ; i++) {
         sum+= pow(abs(point1[i]-point2[i]), k);
     }
     distance = pow(sum, 1.0/(float)k);
