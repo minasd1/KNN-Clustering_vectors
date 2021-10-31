@@ -28,8 +28,8 @@ private:
     vector<vector<int>> r; //A STRUCT TO STORE THE r RANDOM INTEGERS OF EACH G FUNCTION
 public:
     G(int k_num, int dim, engine gen, int win, int m_mod, int tab_s, int l_num);
-    void id(vector<int>& point, vector<int>& id_vector, bool is_query);
-    void hash(vector<int>& point, vector<int>& hash_vector, bool is_query);
+    void id(const vector<int>& point, vector<int>& id_vector, bool is_query);
+    void hash(const vector<int>& point, vector<int>& hash_vector, bool is_query);
     void print_hash_functions_data(void);
 };
 
