@@ -117,6 +117,7 @@ vector<int> range_search(vector<int>& g, int radius, vector<int>& query_point){
             //IF DISTANCE OF J-TH POINT IN THIS BUCKET IS IN THE GIVEN RADIUS
             if((calculate_distance(query_point, point_vector_get_point(hashTable_get_point(i, g[i], j) - 1), 2)) < radius){
                 //THEN ADD IT'S ID TO POINTS_IN_RANGE VECTOR
+                cout << "Point in range is " << hashTable_get_point(i, g[i], j) << "with distance " << calculate_distance(query_point, point_vector_get_point(hashTable_get_point(i, g[i], j) - 1), 2) << endl;
                 points_in_range.push_back(hashTable_get_point(i, g[i], j));
                 retrieved_items++;
 

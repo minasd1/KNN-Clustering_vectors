@@ -132,11 +132,11 @@ int main(int argc, char* argv[]){
 
 
         points_nn= find_approximate_knn(query_point, 1, g);
-        cout << "BEST NEIGHBOR FOR QUERY  " << iii << "is point with ID " << points_nn[0].id << " with distance: " << points_nn[0].dist << endl;
+        //cout << "BEST NEIGHBOR FOR QUERY  " << iii << "is point with ID " << points_nn[0].id << " with distance: " << points_nn[0].dist << endl;
         points_nn= find_approximate_knn(query_point, 3, g);
-        cout << "BEST 3 NEIGHBORS FOR QUERY  " <<iii << "is (1st) point with ID " << points_nn[0].id << " with distance: " << points_nn[0].dist << endl;
-        cout <<  "(2nd) point with ID " << points_nn[1].id << " with distance: " << points_nn[1].dist << endl;
-        cout <<  "(3rd) point with ID " << points_nn[2].id << " with distance: " << points_nn[2].dist << endl;
+        //cout << "BEST 3 NEIGHBORS FOR QUERY  " <<iii << "is (1st) point with ID " << points_nn[0].id << " with distance: " << points_nn[0].dist << endl;
+        //cout <<  "(2nd) point with ID " << points_nn[1].id << " with distance: " << points_nn[1].dist << endl;
+        //cout <<  "(3rd) point with ID " << points_nn[2].id << " with distance: " << points_nn[2].dist << endl;
         iii++;
 
         //-------------------

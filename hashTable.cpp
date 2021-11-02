@@ -25,6 +25,9 @@ vector<int> hashTable_get_points_in_buckets(vector<int>& g){
 
     for(int i = 0; i < HashTables.size(); i++){
         for(int j = 0; j < HashTables[i][g[i]].size(); j++){
+            //INSERT THE NUMBER OF HASHTABLE OF THE POINT (USE TO GET APPROPRIATE ID VALUE)
+            points_in_buckets.push_back(i);
+            //PUSH THE ID OF THE POINT TO POINTS IN HASHTABLE BUCKETS
             points_in_buckets.push_back(HashTables[i][g[i]][j]);
         }
     }
