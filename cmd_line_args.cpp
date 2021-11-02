@@ -25,9 +25,9 @@ int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_f
     p_flag= false;
     m_flag= false;
 
-    if (argc < 3) {     //At least ./program, -i <...> must be given
+    if (argc < 5) {     //At least ./program, -i <input_file> -q <query_file> must be given
         cerr << "Not all arguments were given\nPlease run the program as below:\n\n\
-        ./lsh -i <input_file>" << endl;
+        ./lsh -i <input_file> -q <query_file>" << endl;
         return -1;
     }
     for (i=1; i < argc-1 ; i+=2) { //For every other argument
@@ -86,6 +86,8 @@ int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_f
             m= 10;
         if (!p_flag && (string)argv[0]=="./cube")
             probes= 2;
+        if (!o_flag)
+            output_file= "output_file";
         return 0;
     }
     else {
