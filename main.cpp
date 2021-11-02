@@ -2,6 +2,7 @@
 //To run: ./lsh -i input_small_id -k 3 -L 9 -o output123 -N 3 (To input_small_id na einai sto idio directory)
 
 #include <iostream>
+#include <cstring>
 #include <string>
 #include <vector>
 #include <fstream>
@@ -15,6 +16,7 @@
 #include "mod.h"
 #include "cmd_line_args.h"
 #include "lsh.h"
+#include "user_input.h"
 
 
 using namespace std;
@@ -43,6 +45,8 @@ int main(int argc, char* argv[]){
     int M = pow(2, 31) - 5;
     vector<int> id_vector;          //IDS OF A POINT IN EACH HASHTABLE
     vector<int> hash_vector;        //INDEX OF EVERY HASHTABLE BUCKET THAT A GIVEN POINT WILL BE INSERTED
+    string query_file_name(argv[2]);
+    int continue_execution = 1;
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator(seed);
@@ -95,70 +99,92 @@ int main(int argc, char* argv[]){
 
     hash_vector.clear();
 
+    //query_file = argv[2];
+
     //vector<int> query_point;
-    //OPEN FILE TO READ QUERY FILES FROM
-    open_file(&query_file, argv[2], fstream::in);
+    while(continue_execution == 1){
+        
+        cout << "Query file name is " << query_file_name << endl;
 
-    //OPEN FILE TO WRITE RESULTS TO
-    open_file(&output_file, argv[3], fstream::out);
 
-    finish = 0;
+        //OPEN FILE TO READ QUERY FILES FROM
+        open_file(&query_file, query_file_name.c_str(), fstream::in);   //argv[2] instead of query_file_name
+        //query_file.open(query_file_name);
+        //OPEN FILE TO WRITE RESULTS TO
+        open_file(&output_file, argv[3], fstream::out);
 
-    while(getline(query_file, line)){                       //READ QUERY FILE LINE BY LINE
+        finish = 0;
 
-        vector<int> query_point;
-        start = 0;
-        while(start < line.size()){                         //TOKENIZE EVERY LINE IN IT'S SEPERATED STRINGS
-            finish = line.find_first_of(' ', start);
+        while(getline(query_file, line)){                       //READ QUERY FILE LINE BY LINE
 
-            if(finish == string::npos){
+            vector<int> query_point;
+            start = 0;
+            while(start < line.size()){                         //TOKENIZE EVERY LINE IN IT'S SEPERATED STRINGS
+                finish = line.find_first_of(' ', start);
 
-                finish = line.size();
+                if(finish == string::npos){
+
+                    finish = line.size();
+                }
+
+                if(start < line.size() - 1){
+                    token = line.substr(start, finish - start);
+                    query_point.push_back(stoi(token));               //CONVERT THE STRINGS TO INTEGERS AND PASS THEM TO QUERY POINT VECTOR
+                }
+
+                start = finish + 1;
+
             }
 
-            if(start < line.size() - 1){
-                token = line.substr(start, finish - start);
-                query_point.push_back(stoi(token));               //CONVERT THE STRINGS TO INTEGERS AND PASS THEM TO QUERY POINT VECTOR
+            //cout << "argv[0] is" << argv[0] << endl;
+
+            if(strcmp(argv[0], "./lsh") == 0){
+                g.hash(query_point, hash_vector, 1);
+
+                //APOSTOLOS----------
+                vector<dist_id_pair> points_nn;
+
+
+                points_nn= find_approximate_knn(query_point, 1, g);
+                //cout << "BEST NEIGHBOR FOR QUERY  " << iii << "is point with ID " << points_nn[0].id << " with distance: " << points_nn[0].dist << endl;
+                points_nn= find_approximate_knn(query_point, 3, g);
+                //cout << "BEST 3 NEIGHBORS FOR QUERY  " <<iii << "is (1st) point with ID " << points_nn[0].id << " with distance: " << points_nn[0].dist << endl;
+                //cout <<  "(2nd) point with ID " << points_nn[1].id << " with distance: " << points_nn[1].dist << endl;
+                //cout <<  "(3rd) point with ID " << points_nn[2].id << " with distance: " << points_nn[2].dist << endl;
+                iii++;
+
+                //-------------------
+
+
+                vector<int> points_in_range = range_search(hash_vector, 1000, query_point);
+
+                output_file << "Query: " << query_point[0] << endl;
+                output_file << "R-near neighbors:" << endl;
+
+                //PRINT IDS OF POINTS IN RANGE
+                for(int i = 0; i < points_in_range.size(); i++){
+
+                    output_file << points_in_range[i] << endl;
+                }
+
             }
+            else if(strcmp(argv[0], "./cube") == 0){
+                //DO STUFF
+            }
+            
 
-            start = finish + 1;
+            hash_vector.clear();
 
+            
         }
 
-        g.hash(query_point, hash_vector, 1);
-
-        //APOSTOLOS----------
-        vector<dist_id_pair> points_nn;
-
-
-        points_nn= find_approximate_knn(query_point, 1, g);
-        //cout << "BEST NEIGHBOR FOR QUERY  " << iii << "is point with ID " << points_nn[0].id << " with distance: " << points_nn[0].dist << endl;
-        points_nn= find_approximate_knn(query_point, 3, g);
-        //cout << "BEST 3 NEIGHBORS FOR QUERY  " <<iii << "is (1st) point with ID " << points_nn[0].id << " with distance: " << points_nn[0].dist << endl;
-        //cout <<  "(2nd) point with ID " << points_nn[1].id << " with distance: " << points_nn[1].dist << endl;
-        //cout <<  "(3rd) point with ID " << points_nn[2].id << " with distance: " << points_nn[2].dist << endl;
-        iii++;
-
-        //-------------------
-
-
-        vector<int> points_in_range = range_search(hash_vector, 1000, query_point);
-
-        output_file << "Query: " << query_point[0] << endl;
-        output_file << "R-near neighbors:" << endl;
-
-        //PRINT IDS OF POINTS IN RANGE
-        for(int i = 0; i < points_in_range.size(); i++){
-
-            output_file << points_in_range[i] << endl;
-        }
-
-        hash_vector.clear();
+        
+        read_user_input(query_file_name, &continue_execution);
+        close_file(&output_file);
+        close_file(&query_file);
+        
     }
-
-
-    close_file(&output_file);
-    close_file(&query_file);
+    
     close_file(&input_file);
 
     return 0;
