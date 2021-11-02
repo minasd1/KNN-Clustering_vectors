@@ -18,6 +18,8 @@ typedef struct dist_id_pair {
 }dist_id_pair;
 
 vector<dist_id_pair> find_approximate_knn(vector<int> query_point, int k,  G& g, int max_candidates=-1);
+vector<dist_id_pair> find_exact_knn(vector<int> query_point, int k, int num_of_points);
+
 
 vector<int> range_search(vector<int>& g, int radius, vector<int>& query_point);
 

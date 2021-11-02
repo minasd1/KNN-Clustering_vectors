@@ -191,6 +191,50 @@ vector<dist_id_pair> find_approximate_knn(vector<int> query_point, int k, G& g, 
     return nn_table;
 }
 
+//RECEIVES A QUERY POINT AND RETURNS THE FIRST k EXACT NEAREST NEIGHBORS
+//IN ASCENDING DISTANCE ORDER USING BRUTE FORCE
+vector<dist_id_pair> find_exact_knn(vector<int> query_point, int k, int num_of_points)
+{
+    int i;
+    vector<dist_id_pair> nn_table; //A TABLE IN WHICH THE PAIRS OF {DISTANCE, ID} OF THE NEAREST //NEIGHBORING POINTS ARE STORED IN ASCENDIND DISTANCE ORDER
+    vector<int> current_candidate;
+    dist_id_pair current_pair;
+    int points_in_table_counter= 0;
+    float max_distance, distance;
+
+    //FOR ALL THE CANDIDATE POINTS
+    for (i=0; i < num_of_points ; i++) {
+        current_candidate= point_vector_get_point(i);
+        distance= calculate_distance(query_point, current_candidate);
+        //CREATE A PAIR WITH THESE TWO VALUES
+        current_pair.dist= distance;
+        current_pair.id= current_candidate[0];
+
+        if (points_in_table_counter < k) { //THE FIRST k CANDIDATES TO COME ARE DIRECTLY PUSHED INTO THE NEAREST NEIGHBORS VECTOR
+            if (!already_exist(nn_table, current_pair.id)) {
+                nn_table.push_back(current_pair);
+                points_in_table_counter++;
+            }
+        }
+        else if (points_in_table_counter == k) { //WHEN THE nn_table HAS BEEN FILLED FULLY FOR THE FIRST TIME
+            sort(nn_table.begin(), nn_table.end(), compare_distance); //SORT THE FIRST k PAIRS IN ASCENDING DISTANCE ORDER
+            max_distance= nn_table[k-1].dist; //THE LAST ELEMENT OF THE nn_table HAS THE MAXIMUM DISTANCE FROM QUERY POINT
+            if (current_pair.dist < max_distance) {
+                insert_at_correct_place(nn_table, current_pair);
+            }
+        }
+        else { //IF THE nn_table ALREADY HAS k ID-DISTANCE PAIRS
+            if (current_pair.dist < max_distance) {
+                insert_at_correct_place(nn_table, current_pair);
+            }
+        }
+    }
+    if (nn_table.size() < k) { //JUST IN CASE THERE ARE LESS THAN k CANDIDATE POINTS IN THE BUCKETS
+        sort(nn_table.begin(), nn_table.end(), compare_distance);
+    }
+    return nn_table;
+}
+
 
 //IMPLEMENT APPROXIMATE RANGE SEARCH ALGORITHM
 vector<int> range_search(vector<int>& g, int radius, vector<int>& query_point){
