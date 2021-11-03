@@ -21,11 +21,12 @@
 
 using namespace std;
 
-const int k = 4;
-const int L = 5;
-const int N = 1;
-const int R = 10000;
-int iii = 0;
+
+int k ;
+int L ;
+int N ;
+float R ;
+int probes;
 
 int main(int argc, char* argv[]){
     fstream input_file;             //FILE WE READ INPUT FROM
@@ -33,6 +34,7 @@ int main(int argc, char* argv[]){
     fstream output_file;            //FILE TO WRITE OUTPUT TO
     int point_id;
     string line;
+    string input_file_name, query_file_name, output_file_name;
     int start;
     int finish = 0;
     bool first_iteration = true;
@@ -45,13 +47,20 @@ int main(int argc, char* argv[]){
     int M = pow(2, 31) - 5;
     vector<int> id_vector;          //IDS OF A POINT IN EACH HASHTABLE
     vector<int> hash_vector;        //INDEX OF EVERY HASHTABLE BUCKET THAT A GIVEN POINT WILL BE INSERTED
-    string query_file_name(argv[2]);
+    //string query_file_name(argv[2]);
     int continue_execution = 1;
+    //auto start_time, stop_time, time_lsh, time_brute;
+    int i;
+    vector<dist_id_pair> points_lsh, points_brute;
+    int probes;
+
+    int error= read_cmd_args_lsh(argc, argv, input_file_name, query_file_name,
+                       k,  L, output_file_name, N, R, M, probes);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator(seed);
 
-    open_file(&input_file, argv[1], fstream::in);
+    open_file(&input_file, input_file_name, fstream::in);
 
     while(getline(input_file, line)){                       //READ FILE LINE BY LINE
         vector<int> point;
@@ -74,14 +83,14 @@ int main(int argc, char* argv[]){
                 dimensions++;                               //KEEP TRACK OF THE DIMENSIONS OF GIVEN INSTANCE
             }
         }
-    
+
         point_vector_insert_point(point);
         number_of_points++;
         first_iteration = false;
     }
 
     initialize_points_ID_vector(number_of_points, L);
-    
+
 
     buckets = number_of_points/points_divider;
 
@@ -103,15 +112,15 @@ int main(int argc, char* argv[]){
 
     //vector<int> query_point;
     while(continue_execution == 1){
-        
-        cout << "Query file name is " << query_file_name << endl;
+
+        //cout << "Query file name is " << query_file_name << endl;
 
 
         //OPEN FILE TO READ QUERY FILES FROM
-        open_file(&query_file, query_file_name.c_str(), fstream::in);   //argv[2] instead of query_file_name
+        open_file(&query_file, query_file_name, fstream::in);   //argv[2] instead of query_file_name
         //query_file.open(query_file_name);
         //OPEN FILE TO WRITE RESULTS TO
-        open_file(&output_file, argv[3], fstream::out);
+        open_file(&output_file, output_file_name, fstream::out);
 
         finish = 0;
 
@@ -141,24 +150,30 @@ int main(int argc, char* argv[]){
             if(strcmp(argv[0], "./lsh") == 0){
                 g.hash(query_point, hash_vector, 1);
 
-                //APOSTOLOS----------
-                vector<dist_id_pair> points_nn;
+                //LSH NEAREST NEIGHBORS
+                //FIND TIME LSH - APPROXIMATE NEIGHBORS
+                auto start_time = std::chrono::high_resolution_clock::now();
+                points_lsh= find_approximate_knn(query_point, N, g);
+                auto stop_time = std::chrono::high_resolution_clock::now();
+                auto time_lsh = std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time);
+                //FIND TIME BRUTE FORCE - EXACT NEIGHBORS
+                auto start_time2 = std::chrono::high_resolution_clock::now();
+                points_brute= find_exact_knn(query_point, N, number_of_points);
+                auto stop_time2 = std::chrono::high_resolution_clock::now();
+                auto time_brute = std::chrono::duration_cast<std::chrono::microseconds>(stop_time2 - start_time2);
+                //PRINTING IN OUTPUT FILE
+                output_file << "Query: " << query_point[0] << endl;
+                for (i= 1; i <= N ; i++) {
+                    output_file << "Nearest neighbor-" << i<< ": " << points_lsh[i-1].id << endl;
+                    output_file << "distanceLSH: " << points_lsh[i-1].dist << endl;
+                    output_file << "distanceTrue: " << points_brute[i-1].dist << endl;
+                }
+                output_file <<  "tLSH: " << time_lsh.count() << endl;
+                output_file << "tTrue: " << time_brute.count() << endl;
 
-
-                points_nn= find_approximate_knn(query_point, 1, g);
-                //cout << "BEST NEIGHBOR FOR QUERY  " << iii << "is point with ID " << points_nn[0].id << " with distance: " << points_nn[0].dist << endl;
-                points_nn= find_approximate_knn(query_point, 3, g);
-                //cout << "BEST 3 NEIGHBORS FOR QUERY  " <<iii << "is (1st) point with ID " << points_nn[0].id << " with distance: " << points_nn[0].dist << endl;
-                //cout <<  "(2nd) point with ID " << points_nn[1].id << " with distance: " << points_nn[1].dist << endl;
-                //cout <<  "(3rd) point with ID " << points_nn[2].id << " with distance: " << points_nn[2].dist << endl;
-                iii++;
-
-                //-------------------
-
-
+                //LSH RANGE SEARCH
                 vector<int> points_in_range = range_search(hash_vector, 1000, query_point);
 
-                output_file << "Query: " << query_point[0] << endl;
                 output_file << "R-near neighbors:" << endl;
 
                 //PRINT IDS OF POINTS IN RANGE
@@ -171,20 +186,20 @@ int main(int argc, char* argv[]){
             else if(strcmp(argv[0], "./cube") == 0){
                 //DO STUFF
             }
-            
+
 
             hash_vector.clear();
 
-            
+
         }
 
-        
+
         read_user_input(query_file_name, &continue_execution);
         close_file(&output_file);
         close_file(&query_file);
-        
+
     }
-    
+
     close_file(&input_file);
 
     return 0;
