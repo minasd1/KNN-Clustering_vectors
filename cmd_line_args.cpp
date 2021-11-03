@@ -30,7 +30,7 @@ int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_f
         ./lsh -i <input_file> -q <query_file>" << endl;
         return -1;
     }
-    for (i=1; i < argc-1 ; i+=2) { //For every other argument
+    for (i=1; i < argc ; i+=2) { //For every other argument
         if((string)argv[i] == "-i"){
             i_flag= true;
             input_file= argv[i+1];
@@ -72,7 +72,7 @@ int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_f
             return -1;
         }
     }
-    if (i_flag) {
+    if (i_flag && q_flag) {
         //Initialize missing arguments with default values
         if (!k_flag)
             k= 4;
@@ -91,7 +91,7 @@ int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_f
         return 0;
     }
     else {
-        cerr << "The input file is missing" << endl;
+        cerr << "The input file and/or the query file is missing" << endl;
         return -1;
     }
 }

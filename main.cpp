@@ -1,6 +1,3 @@
-// To compile: g++ main.cpp cmd_line_args.cpp vector_ops.cpp hashTable.cpp file_functions.cpp -o lsh
-//To run: ./lsh -i input_small_id -k 3 -L 9 -o output123 -N 3 (To input_small_id na einai sto idio directory)
-
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -56,6 +53,9 @@ int main(int argc, char* argv[]){
 
     int error= read_cmd_args_lsh(argc, argv, input_file_name, query_file_name,
                        k,  L, output_file_name, N, R, M, probes);
+    if (error) {
+        return -1;
+    }
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator(seed);
@@ -168,8 +168,8 @@ int main(int argc, char* argv[]){
                     output_file << "distanceLSH: " << points_lsh[i-1].dist << endl;
                     output_file << "distanceTrue: " << points_brute[i-1].dist << endl;
                 }
-                output_file <<  "tLSH: " << time_lsh.count() << endl;
-                output_file << "tTrue: " << time_brute.count() << endl;
+                output_file <<  "tLSH: " << time_lsh.count() << " microseconds" << endl;
+                output_file << "tTrue: " << time_brute.count() << " microseconds" << endl;
 
                 //LSH RANGE SEARCH
                 vector<int> points_in_range = range_search(hash_vector, 1000, query_point);
