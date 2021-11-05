@@ -98,7 +98,7 @@ int main(int argc, char* argv[]){
     hashTable_initialization(L, buckets);
 
     //INITIALIZE G FUNCTION THAT LEADS US TO HASHTABLE BUCKETS
-    G g(k, dimensions, generator, 6, M, buckets, L);
+    G_Lsh g(k, dimensions, generator, 6, M, buckets, L);
 
     //INSERT ALL THE POINTS FROM INPUT FILE TO HASHTABLES
     for(int i = 0; i < number_of_points; i++){
