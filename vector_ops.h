@@ -39,5 +39,9 @@ int get_point_id_value(int index_value, int k);
 int calculate_dot_product(const vector <int>& point, vector <int>& v);
 float calculate_distance(vector<int>& point1, const vector<int>& point2, int k=2);
 
+/*-------------------------OTHER FUNCTIONS---------------------------------*/
+void create_vector_int(vector<int>& ints, int k, int w, std::default_random_engine& generator);
+
+
 
 #endif

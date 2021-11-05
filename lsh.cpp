@@ -44,7 +44,7 @@ void insert_at_correct_place(vector<dist_id_pair>& table, dist_id_pair& pair)
 
 //RECEIVES THE QUERY_POINT'S IDS AND THE CANDIDATE_POINTS' IDS
 //RETURNS IF THERE IS AT LEAST ONE POINT IN THE CANDIDATES SET WITH THE SAME ID WITH THE QUERY_POINT
-bool is_there_someone_with_same_id(vector<int>& query_points_ids, vector<int>& candidate_points, G& g,
+bool is_there_someone_with_same_id(vector<int>& query_points_ids, vector<int>& candidate_points, G_Lsh& g,
                                    int& same_id_counter, vector<int>& points_with_same_id) {
     int i;
     vector<int> current_candidate_ids; //THE IDs OF A CANDIDATE POINT
@@ -69,7 +69,7 @@ bool is_there_someone_with_same_id(vector<int>& query_points_ids, vector<int>& c
 //RECEIVES A QUERY POINT AND RETURNS THE FIRST k NEAREST NEIGHBORS IN ASCENDING DISTANCE ORDER
 //THE LAST ARGUMENT IS OPTIONAL AND SHOWS THE MAXIMUM NUMBER OF POINTS TO BE EXAMINED AS POSSIBLE NEAREST NEIGHBORS
 //IF NO FORTH ARGUMENT IS GIVEN THEN ALL THE POINTS IN THE SAME BUCKETS WITH query_point ARE EXAMINED
-vector<dist_id_pair> find_approximate_knn(vector<int> query_point, int k, G& g, int max_candidates)// THIRD ARG IS THE OBJECT OF CLASS G DECLEARED IN MAIN FUNCTION
+vector<dist_id_pair> find_approximate_knn(vector<int> query_point, int k, G_Lsh& g, int max_candidates)// THIRD ARG IS THE OBJECT OF CLASS G DECLEARED IN MAIN FUNCTION
 {
     int points_in_table_counter= 0; //A COUNTER OF THE ELEMENTS INSIDE THE nn_table
     vector<dist_id_pair> nn_table; //A TABLE IN WHICH THE PAIRS OF {DISTANCE, ID} OF THE NEAREST NEIGHBORING POINTS ARE STORED IN ASCENDIND DISTANCE ORDER

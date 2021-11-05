@@ -63,6 +63,21 @@ void create_vector_t(vector<float>& t, int k, int w, std::default_random_engine&
     }
 }
 
+//CREATE A VECTOR OF k RANDOM INTEGERS  IN RANGE [0,w)
+//THE RANDOM INEGERS COME FROM THE UNIFORM DISTRIBUTION ~Unif[0,w)
+void create_vector_int(vector<int>& ints, int k, int w, std::default_random_engine& generator)
+{
+    int i;
+    int rand_number;
+    uniform_int_distribution<> distribution(0, w);
+
+    ints.resize(k);
+    for (i=0; i < ints.size() ; i++) {
+        rand_number= distribution(generator);
+        ints[i]= rand_number;
+    }
+}
+
 //PRINT CONTENTS OF t-VECTORS - USED FOR CHECKING PURPOSES
 void print_vector_t(vector<float>& t){
     for (int i = 0; i < t.size(); i++) {
@@ -74,19 +89,19 @@ void print_vector_t(vector<float>& t){
 //INITIALIZE THE POINTS ID VECTOR
 void initialize_points_ID_vector(int num_of_points, int L){
     points_ID_vector.resize(num_of_points, vector<int>(L));
-    
+
 }
 
 //INSERT POINT'S ID VALUES TO ID VECTOR
 //INDEX VALUE IS THE ID VALUE OF THE POINT (KEY)
 void points_ID_push_back(int index_value, vector<int>& point_id_values){
-    
+
     for(int i = 0; i < points_ID_vector[index_value].size(); i++){
-       
+
         //points_ID_vector[index_value].push_back(point_id_values[i]);
         points_ID_vector[index_value][i] = point_id_values[i];
     }
-    
+
 }
 
 //GET ID VALUE OF A POINT CORRESPONDING TO A SPECIFIC HASH TABLE

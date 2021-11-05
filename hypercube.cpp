@@ -8,14 +8,13 @@ void hyperCube_initialization(int num_of_buckets){
 
 //PUT A POINT'S ID VALUE TO A BUCKET OF HYPERCUBE
 //BUCKET IS INDICATED BY THE INT VALUE PRODUCED BY FUNCTION G
-void hyperCube_push_back(int g, int key_val){
-
+void hyperCube_push_back(unsigned int g, int key_val){
     HyperCube[g].push_back(key_val);
 }
 
 //GET KEY VALUES OF ALL THE POINTS OF A BUCKET OF HYPERCUBE
 //BUCKET IS INDICATED BY THE INT VALUE PRODUCED BY FUNCTION G
-vector<int> hyperCube_get_points_in_bucket(int g){
+vector<int> hyperCube_get_points_in_bucket(unsigned int g){
 
     vector<int> points_in_bucket;
 
@@ -48,4 +47,3 @@ void hyperCube_print_data(){
         }
     }
 }
-
