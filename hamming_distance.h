@@ -6,7 +6,8 @@
 
 using namespace std;
 
-int hamming_distance(string s1, string s2);
+
+int hamming_distance(unsigned int s1, unsigned int s2);
 
 
 

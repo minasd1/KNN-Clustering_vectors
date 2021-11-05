@@ -1,16 +1,25 @@
 #include "hamming_distance.h"
 
+//RETURNS THE HAMMING DISTANCE OF TWO STRINGS (STORED AS INTEGERS, E.G.: 17 -> 000...010001)
+int hamming_distance(unsigned int s1, unsigned int s2)
+{
+    int i, hamming_distance, dividend, remainder, quotient;
 
-int hamming_distance(string s1, string s2){
-
-    int hamming_distance = 0;
-
-    for(int i = 0; i < s1.size(); i++){
-
-        if(s1[i] != s2[i]){
+    hamming_distance = 0;
+    dividend= s1^s2;
+    quotient= dividend/2;
+    remainder= dividend%2;
+    if (remainder == 1) {
+        hamming_distance++;
+    }
+    dividend= quotient;
+    while (quotient != 0) {
+        quotient= dividend/2;
+        remainder= dividend%2;
+        if (remainder == 1) {
             hamming_distance++;
         }
+        dividend= quotient;
     }
-
     return hamming_distance;
 }
