@@ -21,17 +21,16 @@
 using namespace std;
 
 
-int k ;
-int L ;
-int N ;
-float R ;
-const int probes = 2;
-const int k_cube = 12;
-const int M_cube = 10;
-const int N_cube = 1;
-const float R_cube = 10000;
-
 int main(int argc, char* argv[]){
+                                    /*COMMAND LINE ARGUMENTS */
+    int k ;                         //NUMBER OF H FUNCTIONS USED IN FUNCTION G
+    int L ;                         //NUMBER OF HASHTABLES(LSH)
+    int N ;                         //NUMBER OF NEAREST MEIGHBORS
+    float R ;                       //SEARCH RADIUS
+    int probes ;                    //MAX NUMBER OF HYPERCUBE VERTICES TO BE CHECKED
+    int k_cube ;                    //D'
+    int M_cube ;                    //MAX NUMBER OF CANDIDATE POINTS TO BE CHECKED
+
     fstream input_file;             //FILE WE READ INPUT FROM
     fstream query_file;             //FILE WE READ QUERIES FROM
     fstream output_file;            //FILE TO WRITE OUTPUT TO
@@ -51,15 +50,14 @@ int main(int argc, char* argv[]){
     vector<int> id_vector;          //IDS OF A POINT IN EACH HASHTABLE
     vector<int> hash_vector;        //INDEX OF EVERY HASHTABLE BUCKET THAT A GIVEN POINT WILL BE INSERTED
     unsigned int hash_value;
-    //string query_file_name(argv[2]);
     int continue_execution = 1;
-    //auto start_time, stop_time, time_lsh, time_brute;
+    
     int i;
     vector<dist_id_pair> points_lsh, points_brute;
     int probes;
 
     int error= read_cmd_args_lsh(argc, argv, input_file_name, query_file_name,
-                       k,  L, output_file_name, N, R, M, probes);
+                       k,  L, output_file_name, N, R, M_cube, probes);
     if (error) {
         return -1;
     }
