@@ -8,15 +8,16 @@ using namespace std;
 //               0 ->A query file was given in the command line
 //               1 ->No query file was given in the command line
 //Initializes program's variables with command line arguments
-int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_file,
-                      int& k, int& l, string& output_file, int& n, float& r, int& m, int& probes)
+int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
+                      int& k_lsh, int& k_cube, int& l, string& output_file, int& n, float& r, int& m, int& probes)
 {
     int i;
-    bool i_flag, k_flag, l_flag, o_flag, q_flag,n_flag, r_flag, p_flag, m_flag;
+    bool i_flag, k_lsh_flag, k_cube_flag, l_flag, o_flag, q_flag,n_flag, r_flag, p_flag, m_flag;
 
     //Flags for given arguments (false for missing args)
     i_flag= false;
-    k_flag= false;
+    k_lsh_flag= false;
+    k_cube_flag= false;
     l_flag= false;
     o_flag= false;
     q_flag= false;
@@ -25,12 +26,12 @@ int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_f
     p_flag= false;
     m_flag= false;
 
-    if (argc < 3) {     //At least ./program, -i <...> must be given
+    if (argc < 5) {     //At least ./program, -i <input_file> -q <query_file> must be given
         cerr << "Not all arguments were given\nPlease run the program as below:\n\n\
-        ./lsh -i <input_file>" << endl;
+        ./lsh -i <input_file> -q <query_file>" << endl;
         return -1;
     }
-    for (i=1; i < argc-1 ; i+=2) { //For every other argument
+    for (i=1; i < argc ; i+=2) { //For every other argument
         if((string)argv[i] == "-i"){
             i_flag= true;
             input_file= argv[i+1];
@@ -39,9 +40,9 @@ int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_f
             q_flag= true;
             query_file= argv[i+1];
         }
-        else if((string)argv[i] == "-k") {
-            k_flag= true;
-            k= stoi(argv[i+1]);
+        else if((string)argv[i] == "-k" && (string)argv[0] == "./lsh") {
+            k_lsh_flag= true;
+            k_lsh= stoi(argv[i+1]);
         }
         else if((string)argv[i] == "-L") {
             l_flag= true;
@@ -67,15 +68,21 @@ int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_f
             p_flag= true;
             probes= stoi(argv[i+1]);
         }
+        else if((string)argv[i] == "-k" && (string)argv[0] == "./cube") {
+            k_cube_flag= true;
+            k_cube= stoi(argv[i+1]);
+        }
         else {
             cerr << "Wrong input arguent: " << argv[i] << endl;
             return -1;
         }
     }
-    if (i_flag) {
+    if (i_flag && q_flag) {
         //Initialize missing arguments with default values
-        if (!k_flag)
-            k= 4;
+        if (!k_lsh_flag)
+            k_lsh= 4;
+        if  (!k_cube_flag)
+            k_cube= 14;
         if (!l_flag && (string)argv[0]=="./lsh")
             l= 5;
         if(!n_flag)
@@ -86,10 +93,12 @@ int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_f
             m= 10;
         if (!p_flag && (string)argv[0]=="./cube")
             probes= 2;
+        if (!o_flag)
+            output_file= "output_file";
         return 0;
     }
     else {
-        cerr << "The input file is missing" << endl;
+        cerr << "The input file and/or the query file is missing" << endl;
         return -1;
     }
 }

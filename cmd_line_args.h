@@ -4,7 +4,7 @@
 
 using namespace std;
 
-int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_file,
-                      int& k, int& l, string& output_file, int& n, float& r, int& m, int& probes);
+int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
+                      int&  k_lsh, int& k_cube, int& l, string& output_file, int& n, float& r, int& m, int& probes);
 
 #endif
