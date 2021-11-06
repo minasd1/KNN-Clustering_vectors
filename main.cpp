@@ -51,13 +51,12 @@ int main(int argc, char* argv[]){
     vector<int> hash_vector;        //INDEX OF EVERY HASHTABLE BUCKET THAT A GIVEN POINT WILL BE INSERTED
     unsigned int hash_value;
     int continue_execution = 1;
-    
-    int i;
-    vector<dist_id_pair> points_lsh, points_brute;
-    int probes;
 
-    int error= read_cmd_args_lsh(argc, argv, input_file_name, query_file_name,
-                       k,  L, output_file_name, N, R, M_cube, probes);
+    int i;
+    vector<dist_id_pair> points_lsh, points_cube, points_brute;
+
+    int error= read_cmd_args(argc, argv, input_file_name, query_file_name,
+                       k, k_cube, L, output_file_name, N, R, M_cube, probes);
     if (error) {
         return -1;
     }
@@ -136,7 +135,7 @@ int main(int argc, char* argv[]){
 
         //OPEN FILE TO READ QUERY FILES FROM
         open_file(&query_file, query_file_name, fstream::in);
-        
+
         //OPEN FILE TO WRITE RESULTS TO
         open_file(&output_file, output_file_name, fstream::out);
 
@@ -169,7 +168,7 @@ int main(int argc, char* argv[]){
                 //LSH NEAREST NEIGHBORS
                 //FIND TIME LSH - APPROXIMATE NEIGHBORS
                 auto start_time = std::chrono::high_resolution_clock::now();
-                points_lsh= find_approximate_knn(query_point, N, g_lsh);
+                points_lsh= lsh_find_approximate_knn(query_point, N, g_lsh);
                 auto stop_time = std::chrono::high_resolution_clock::now();
                 auto time_lsh = std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time);
                 //FIND TIME BRUTE FORCE - EXACT NEIGHBORS
@@ -202,9 +201,38 @@ int main(int argc, char* argv[]){
             else if(strcmp(argv[0], "./cube") == 0){
                 //DO STUFF
                 g_cube.hash(query_point, hash_value, 1);
-                
+
                 output_file << "Query: " << query_point[0] << endl;
 
+                //--------------
+                //CUBE NEAREST NEIGHBORS
+                //FIND TIME CUBE - APPROXIMATE NEIGHBORS
+                auto start_time = std::chrono::high_resolution_clock::now();
+                points_cube= cube_find_approximate_knn(query_point, N, g_cube, probes, k_cube, M_cube);
+                auto stop_time = std::chrono::high_resolution_clock::now();
+                auto time_cube = std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time);
+                //FIND TIME BRUTE FORCE - EXACT NEIGHBORS
+                auto start_time2 = std::chrono::high_resolution_clock::now();
+                points_brute= find_exact_knn(query_point, N, number_of_points);
+                auto stop_time2 = std::chrono::high_resolution_clock::now();
+                auto time_brute = std::chrono::duration_cast<std::chrono::microseconds>(stop_time2 - start_time2);
+                // //PRINTING IN OUTPUT FILE
+                for (i= 1; i <= N ; i++) {
+                    //IF NO POINTS FOUND
+                    if(points_cube[i-1].id == -1){
+                        output_file << "No points found in query's bucket or it's relative buckets" << endl;
+                    }
+                    else{
+                        output_file << "Nearest neighbor-" << i<< ": " << points_cube[i-1].id << endl;
+                        output_file << "distanceCUBE: " << points_cube[i-1].dist << endl;
+                    }
+                    
+                    output_file << "distanceTrue: " << points_brute[i-1].dist << endl;
+
+                }
+                output_file <<  "tCUBE: " << time_cube.count() << " microseconds" << endl;
+                output_file << "tTrue: " << time_brute.count() << " microseconds" << endl;
+                //-----------------
                 //HYPERCUBE RANGE SEARCH
                 vector<int> points_in_range = cube_range_search(hash_value, 1000, probes, k_cube, query_point);
                 output_file << "R-near neighbors:" << endl;
