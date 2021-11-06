@@ -112,7 +112,7 @@ G_Hypercube::G_Hypercube(int dim, engine gen, int win, int str_dim)
 {
     int limit, rand_number;
 
-    limit= 2107275161; //A BIG INTEGER, THE MAX NUMBER THE UNIFORM DISTRIBUTION CAN PRODUCE (OR DI'S SECRETARY PHONE NUMBER)
+    limit= pow(2, 30); //A BIG INTEGER, THE MAX NUMBER THE UNIFORM DISTRIBUTION CAN PRODUCE (OR DI'S SECRETARY PHONE NUMBER)
 
     //INITIALIZE THE V_VECTORS AND t FLOATS (USED IN h FUNCTIONS)
     v_vectors_assign_coordinances(v_vectors, string_dimensions, dimension, generator);

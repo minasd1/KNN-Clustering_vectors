@@ -14,6 +14,8 @@
 #include "cmd_line_args.h"
 #include "lsh.h"
 #include "user_input.h"
+#include "hypercube.h"
+#include "cube.h"
 
 
 using namespace std;
@@ -23,7 +25,11 @@ int k ;
 int L ;
 int N ;
 float R ;
-int probes;
+const int probes = 2;
+const int k_cube = 12;
+const int M_cube = 10;
+const int N_cube = 1;
+const float R_cube = 10000;
 
 int main(int argc, char* argv[]){
     fstream input_file;             //FILE WE READ INPUT FROM
@@ -39,11 +45,12 @@ int main(int argc, char* argv[]){
     int dimensions = -1;            //DIMENSIONS OF SPACE AS GIVEN BY THE INPUT FILE
     unsigned int number_of_points = 0;
     int buckets;
-    int points_divider = 16;         //USED TO GET TOTAL POINTS IN EACH HASH TABLE
+    int points_divider = 2;         //USED TO GET TOTAL POINTS IN EACH HASH TABLE
     vector<int> p1, p2;             //TWO POINTS ON THE PLANE
     int M = pow(2, 31) - 5;
     vector<int> id_vector;          //IDS OF A POINT IN EACH HASHTABLE
     vector<int> hash_vector;        //INDEX OF EVERY HASHTABLE BUCKET THAT A GIVEN POINT WILL BE INSERTED
+    unsigned int hash_value;
     //string query_file_name(argv[2]);
     int continue_execution = 1;
     //auto start_time, stop_time, time_lsh, time_brute;
@@ -91,34 +98,47 @@ int main(int argc, char* argv[]){
 
     initialize_points_ID_vector(number_of_points, L);
 
-
     buckets = number_of_points/points_divider;
 
-    //INITIALIZE L HASHTABLES WITH HASHTABLESIZE BUCKETS AND ZERO POINTS IN EACH BUCKET
-    hashTable_initialization(L, buckets);
-
     //INITIALIZE G FUNCTION THAT LEADS US TO HASHTABLE BUCKETS
-    G_Lsh g(k, dimensions, generator, 6, M, buckets, L);
+    G_Lsh g_lsh(k, dimensions, generator, 6, M, buckets, L);
 
-    //INSERT ALL THE POINTS FROM INPUT FILE TO HASHTABLES
-    for(int i = 0; i < number_of_points; i++){
+    //INITIALIZE G FUNCTION THAT LEADS US TO HYPERCUBE BUCKETS
+    G_Hypercube g_cube(dimensions, generator, 6, k_cube);
 
-        g.hash(point_vector_get_point(i), hash_vector, 0);
+    if(strcmp(argv[0], "./lsh") == 0){
+
+        //INITIALIZE L HASHTABLES WITH HASHTABLESIZE BUCKETS AND ZERO POINTS IN EACH BUCKET
+        hashTable_initialization(L, buckets);
+
+        //INSERT ALL THE POINTS FROM INPUT FILE TO HASHTABLES
+        for(int i = 0; i < number_of_points; i++){
+
+            g_lsh.hash(point_vector_get_point(i), hash_vector, 0);
+        }
+
+        hash_vector.clear();
+    }
+    else if(strcmp(argv[0], "./cube") == 0){
+
+        //INITIALIZE A HYPERCUBE WITH 2^D' BUCKETS AND ZERO POINTS IN EACH BUCKET
+        hyperCube_initialization(pow(2, k_cube));
+
+        //INSERT ALL THE POINTS FROM INPUT FILE TO HYPERCUBE BUCKETS
+        for(int i = 0; i < number_of_points; i++){
+
+            g_cube.hash(point_vector_get_point(i), hash_value, 0);
+        }
+
     }
 
-    hash_vector.clear();
 
-    //query_file = argv[2];
-
-    //vector<int> query_point;
     while(continue_execution == 1){
-
-        //cout << "Query file name is " << query_file_name << endl;
 
 
         //OPEN FILE TO READ QUERY FILES FROM
-        open_file(&query_file, query_file_name, fstream::in);   //argv[2] instead of query_file_name
-        //query_file.open(query_file_name);
+        open_file(&query_file, query_file_name, fstream::in);
+        
         //OPEN FILE TO WRITE RESULTS TO
         open_file(&output_file, output_file_name, fstream::out);
 
@@ -145,15 +165,13 @@ int main(int argc, char* argv[]){
 
             }
 
-            //cout << "argv[0] is" << argv[0] << endl;
-
             if(strcmp(argv[0], "./lsh") == 0){
-                g.hash(query_point, hash_vector, 1);
+                g_lsh.hash(query_point, hash_vector, 1);
 
                 //LSH NEAREST NEIGHBORS
                 //FIND TIME LSH - APPROXIMATE NEIGHBORS
                 auto start_time = std::chrono::high_resolution_clock::now();
-                points_lsh= find_approximate_knn(query_point, N, g);
+                points_lsh= find_approximate_knn(query_point, N, g_lsh);
                 auto stop_time = std::chrono::high_resolution_clock::now();
                 auto time_lsh = std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time);
                 //FIND TIME BRUTE FORCE - EXACT NEIGHBORS
@@ -172,7 +190,7 @@ int main(int argc, char* argv[]){
                 output_file << "tTrue: " << time_brute.count() << " microseconds" << endl;
 
                 //LSH RANGE SEARCH
-                vector<int> points_in_range = range_search(hash_vector, 1000, query_point);
+                vector<int> points_in_range = lsh_range_search(hash_vector, 1000, query_point);
 
                 output_file << "R-near neighbors:" << endl;
 
@@ -185,6 +203,19 @@ int main(int argc, char* argv[]){
             }
             else if(strcmp(argv[0], "./cube") == 0){
                 //DO STUFF
+                g_cube.hash(query_point, hash_value, 1);
+                
+                output_file << "Query: " << query_point[0] << endl;
+
+                //HYPERCUBE RANGE SEARCH
+                vector<int> points_in_range = cube_range_search(hash_value, 1000, probes, k_cube, query_point);
+                output_file << "R-near neighbors:" << endl;
+
+                //PRINT IDS OF POINTS IN RANGE
+                for(int i = 0; i < points_in_range.size(); i++){
+
+                    output_file << points_in_range[i] << endl;
+                }
             }
 
 

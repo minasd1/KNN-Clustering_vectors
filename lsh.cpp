@@ -237,10 +237,11 @@ vector<dist_id_pair> find_exact_knn(vector<int> query_point, int k, int num_of_p
 
 
 //IMPLEMENT APPROXIMATE RANGE SEARCH ALGORITHM
-vector<int> range_search(vector<int>& g, int radius, vector<int>& query_point){
+vector<int> lsh_range_search(vector<int>& g, int radius, vector<int>& query_point){
 
     int retrieved_items = 0;
     int max_retrieved_items = 20* hashTable_get_num_of_htables();
+    
     vector<int> points_in_range;
 
     //ACCESS TO I-TH HASHTABLE
@@ -255,7 +256,7 @@ vector<int> range_search(vector<int>& g, int radius, vector<int>& query_point){
                 points_in_range.push_back(hashTable_get_point(i, g[i], j));
                 retrieved_items++;
 
-                if(retrieved_items > max_retrieved_items){
+                if(retrieved_items == max_retrieved_items){
 
                     return points_in_range;
                 }
