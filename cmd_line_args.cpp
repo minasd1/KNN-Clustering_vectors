@@ -12,7 +12,7 @@ int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
                       int& k_lsh, int& k_cube, int& l, string& output_file, int& n, float& r, int& m, int& probes)
 {
     int i;
-    bool i_flag, k_flag, l_flag, o_flag, q_flag,n_flag, r_flag, p_flag, m_flag;
+    bool i_flag, k_lsh_flag, k_cube_flag, l_flag, o_flag, q_flag,n_flag, r_flag, p_flag, m_flag;
 
     //Flags for given arguments (false for missing args)
     i_flag= false;
@@ -42,7 +42,7 @@ int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
         }
         else if((string)argv[i] == "-k" && (string)argv[0] == "./lsh") {
             k_lsh_flag= true;
-            k= stoi(argv[i+1]);
+            k_lsh= stoi(argv[i+1]);
         }
         else if((string)argv[i] == "-L") {
             l_flag= true;
@@ -83,7 +83,7 @@ int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
             k_lsh= 4;
         if  (!k_cube_flag)
             k_cube= 14;
-        if (!l_flag && (string)argv[0]=="./lsh")
+        if (!l_flag)
             l= 5;
         if(!n_flag)
             n= 1;

@@ -1,46 +1,5 @@
 #include "lsh.h"
-
-// COMPARES TWO PAIRS ACCORDING TO DISTANCE (TRUE WHEN THE SECOND'S DISTANCE IS GREATER)
-bool compare_distance(const dist_id_pair& pair1, const dist_id_pair& pair2)
-{
-    return (pair1.dist < pair2.dist);
-}
-
-//CHECKS IF THE ID ALREADY EXISTS IN THE VECTOR
-bool already_exist(const vector<dist_id_pair>& table, int id)
-{
-    int i;
-
-    for (i=0; i < table.size() ; i++) {
-        if (table[i].id == id) {
-            return true;
-        }
-    }
-    return false;
-}
-
-//INSERTS A NEW PAIR IN THE CORRECT PLACE IN A SORTED TABLE OF PAIRS AND REMOVES THE LAST (k+1th) PAIR FROM THE TABLE
-void insert_at_correct_place(vector<dist_id_pair>& table, dist_id_pair& pair)
-{
-    int i, j, last_index;
-    dist_id_pair dummy_pair;
-
-    dummy_pair.dist=0.0;
-    dummy_pair.id= -1;
-    i= 0;
-    while (table[i].dist < pair.dist) {
-        i++;
-    }
-
-    table.push_back(dummy_pair);
-    for (j=table.size()-1; j >= i ; j--) {
-        table[j+1].dist= table[j].dist;
-        table[j+1].id= table[j].id;
-    }
-    table.pop_back();
-    table[i].dist= pair.dist;
-    table[i].id= pair.id;
-}
+//#include "knn_table_functions.h"
 
 //RECEIVES THE QUERY_POINT'S IDS AND THE CANDIDATE_POINTS' IDS
 //RETURNS IF THERE IS AT LEAST ONE POINT IN THE CANDIDATES SET WITH THE SAME ID WITH THE QUERY_POINT
@@ -69,7 +28,7 @@ bool is_there_someone_with_same_id(vector<int>& query_points_ids, vector<int>& c
 //RECEIVES A QUERY POINT AND RETURNS THE FIRST k NEAREST NEIGHBORS IN ASCENDING DISTANCE ORDER
 //THE LAST ARGUMENT IS OPTIONAL AND SHOWS THE MAXIMUM NUMBER OF POINTS TO BE EXAMINED AS POSSIBLE NEAREST NEIGHBORS
 //IF NO FORTH ARGUMENT IS GIVEN THEN ALL THE POINTS IN THE SAME BUCKETS WITH query_point ARE EXAMINED
-vector<dist_id_pair> find_approximate_knn(vector<int> query_point, int k, G_Lsh& g, int max_candidates)// THIRD ARG IS THE OBJECT OF CLASS G DECLEARED IN MAIN FUNCTION
+vector<dist_id_pair> lsh_find_approximate_knn(vector<int> query_point, int k, G_Lsh& g, int max_candidates)// THIRD ARG IS THE OBJECT OF CLASS G DECLEARED IN MAIN FUNCTION
 {
     int points_in_table_counter= 0; //A COUNTER OF THE ELEMENTS INSIDE THE nn_table
     vector<dist_id_pair> nn_table; //A TABLE IN WHICH THE PAIRS OF {DISTANCE, ID} OF THE NEAREST NEIGHBORING POINTS ARE STORED IN ASCENDIND DISTANCE ORDER
@@ -232,6 +191,7 @@ vector<dist_id_pair> find_exact_knn(vector<int> query_point, int k, int num_of_p
     if (nn_table.size() < k) { //JUST IN CASE THERE ARE LESS THAN k CANDIDATE POINTS IN THE BUCKETS
         sort(nn_table.begin(), nn_table.end(), compare_distance);
     }
+    
     return nn_table;
 }
 
@@ -241,7 +201,7 @@ vector<int> lsh_range_search(vector<int>& g, int radius, vector<int>& query_poin
 
     int retrieved_items = 0;
     int max_retrieved_items = 20* hashTable_get_num_of_htables();
-    
+
     vector<int> points_in_range;
 
     //ACCESS TO I-TH HASHTABLE
