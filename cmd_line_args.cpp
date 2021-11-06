@@ -8,15 +8,16 @@ using namespace std;
 //               0 ->A query file was given in the command line
 //               1 ->No query file was given in the command line
 //Initializes program's variables with command line arguments
-int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_file,
-                      int& k, int& l, string& output_file, int& n, float& r, int& m, int& probes)
+int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
+                      int& k_lsh, int& k_cube, int& l, string& output_file, int& n, float& r, int& m, int& probes)
 {
     int i;
     bool i_flag, k_flag, l_flag, o_flag, q_flag,n_flag, r_flag, p_flag, m_flag;
 
     //Flags for given arguments (false for missing args)
     i_flag= false;
-    k_flag= false;
+    k_lsh_flag= false;
+    k_cube_flag= false;
     l_flag= false;
     o_flag= false;
     q_flag= false;
@@ -39,8 +40,8 @@ int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_f
             q_flag= true;
             query_file= argv[i+1];
         }
-        else if((string)argv[i] == "-k") {
-            k_flag= true;
+        else if((string)argv[i] == "-k" && (string)argv[0] == "./lsh") {
+            k_lsh_flag= true;
             k= stoi(argv[i+1]);
         }
         else if((string)argv[i] == "-L") {
@@ -67,6 +68,10 @@ int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_f
             p_flag= true;
             probes= stoi(argv[i+1]);
         }
+        else if((string)argv[i] == "-k" && (string)argv[0] == "./cube") {
+            k_cube_flag= true;
+            k_cube= stoi(argv[i+1]);
+        }
         else {
             cerr << "Wrong input arguent: " << argv[i] << endl;
             return -1;
@@ -74,8 +79,10 @@ int read_cmd_args_lsh(int argc, char** argv, string& input_file, string& query_f
     }
     if (i_flag && q_flag) {
         //Initialize missing arguments with default values
-        if (!k_flag)
-            k= 4;
+        if (!k_lsh_flag)
+            k_lsh= 4;
+        if  (!k_cube_flag)
+            k_cube= 14;
         if (!l_flag && (string)argv[0]=="./lsh")
             l= 5;
         if(!n_flag)
