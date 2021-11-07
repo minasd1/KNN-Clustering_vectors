@@ -30,6 +30,7 @@ int main(int argc, char* argv[]){
     int probes ;                    //MAX NUMBER OF HYPERCUBE VERTICES TO BE CHECKED
     int k_cube ;                    //D'
     int M_cube ;                    //MAX NUMBER OF CANDIDATE POINTS TO BE CHECKED
+    int window= 100;
 
     fstream input_file;             //FILE WE READ INPUT FROM
     fstream query_file;             //FILE WE READ QUERIES FROM
@@ -98,10 +99,10 @@ int main(int argc, char* argv[]){
     buckets = number_of_points/points_divider;
 
     //INITIALIZE G FUNCTION THAT LEADS US TO HASHTABLE BUCKETS
-    G_Lsh g_lsh(k, dimensions, generator, 6, M, buckets, L);
+    G_Lsh g_lsh(k, dimensions, generator, window, M, buckets, L);
 
     //INITIALIZE G FUNCTION THAT LEADS US TO HYPERCUBE BUCKETS
-    G_Hypercube g_cube(dimensions, generator, 6, k_cube);
+    G_Hypercube g_cube(dimensions, generator, window, k_cube);
 
     if(strcmp(argv[0], "./lsh") == 0){
 
@@ -179,6 +180,11 @@ int main(int argc, char* argv[]){
                 //PRINTING IN OUTPUT FILE
                 output_file << "Query: " << query_point[0] << endl;
                 for (i= 1; i <= N ; i++) {
+                    if (i > points_lsh.size()) {
+                        output_file << "Nearest neighbor-" << i<< ": Not enough points in buckets (Consider to decrease hash table size or window)" << endl;
+                        output_file << "distanceLSH: Not enough points in buckets (Consider to decrease hash table size or window)" << endl;
+                        continue;
+                    }
                     output_file << "Nearest neighbor-" << i<< ": " << points_lsh[i-1].id << endl;
                     output_file << "distanceLSH: " << points_lsh[i-1].dist << endl;
                     output_file << "distanceTrue: " << points_brute[i-1].dist << endl;
@@ -226,7 +232,7 @@ int main(int argc, char* argv[]){
                         output_file << "Nearest neighbor-" << i<< ": " << points_cube[i-1].id << endl;
                         output_file << "distanceCUBE: " << points_cube[i-1].dist << endl;
                     }
-                    
+
                     output_file << "distanceTrue: " << points_brute[i-1].dist << endl;
 
                 }
