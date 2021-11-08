@@ -83,13 +83,13 @@ vector<dist_id_pair> lsh_find_approximate_knn(vector<int> query_point, int k, G_
         else if (points_in_table_counter == k) { //WHEN THE nn_table HAS BEEN FILLED FULLY FOR THE FIRST TIME
             sort(nn_table.begin(), nn_table.end(), compare_distance); //SORT THE FIRST k PAIRS IN ASCENDING DISTANCE ORDER
             max_distance= nn_table[k-1].dist; //THE LAST ELEMENT OF THE nn_table HAS THE MAXIMUM DISTANCE FROM QUERY POINT
-            if (current_pair.dist < max_distance) {
+            if (current_pair.dist < max_distance && !already_exist(nn_table, current_pair.id)) {
                 insert_at_correct_place(nn_table, current_pair);
             }
             candidates_counter++;
         }
         else { //IF THE nn_table ALREADY HAS k ID-DISTANCE PAIRS
-            if (current_pair.dist < max_distance) {
+            if (current_pair.dist < max_distance && !already_exist(nn_table, current_pair.id)) {
                 insert_at_correct_place(nn_table, current_pair);
             }
             candidates_counter++;
@@ -108,14 +108,14 @@ vector<dist_id_pair> lsh_find_approximate_knn(vector<int> query_point, int k, G_
             //GET THE CURRENT CANDIDATE POINT'S COORDINATES AND IT's DISTANCE FROM QUERY POINT
             current_candidate= point_vector_get_point(candidate_points[i+1]-1);//+1 BECAUSE candidate_points IS [HASHTABLE, POINT_INDEX, HASHTABLE, ...],
                                                                                             //-1 BECAUSE POINT_VECTOR STARTS FROM 0 WHILE POINTS' IDS START FROM 1
-            g.id(current_candidate, current_candidate_ids, true); //ALTHOUGH current_candidate IS AN INPUT POINT WE USE 'true' SO THAT THE TABLE WITH INPUT POINTS IDS WONT HAVE DUBLICATES
+//            g.id(current_candidate, current_candidate_ids, true); //ALTHOUGH current_candidate IS AN INPUT POINT WE USE 'true' SO THAT THE TABLE WITH INPUT POINTS IDS WONT HAVE DUBLICATES
 
             //IF QUERY_POINT'S ID != CANDIDATE_POINT'S ID, BUT EXIST AT LEAST ONE CANDIDATE WITH SAME ID
-            if (current_candidate_ids[candidate_points[i]] != query_points_ids[candidate_points[i]]
-                && at_least_one_candidate_has_same_id) {
-                candidates_counter++;
-                continue; //DONT CHECK POINTS WITH DIFFRENT ID UNLESS NONE OF THEM HAS THE SAME ID WITH QUERY_POINT
-            }
+//            if (current_candidate_ids[candidate_points[i]] != query_points_ids[candidate_points[i]]
+//                && at_least_one_candidate_has_same_id) {
+//                candidates_counter++;
+//                continue; //DONT CHECK POINTS WITH DIFFRENT ID UNLESS NONE OF THEM HAS THE SAME ID WITH QUERY_POINT
+//            }
             distance= calculate_distance(query_point, current_candidate);
             //CREATE A PAIR WITH THESE TWO VALUES
             current_pair.dist= distance;
@@ -131,13 +131,14 @@ vector<dist_id_pair> lsh_find_approximate_knn(vector<int> query_point, int k, G_
             else if (points_in_table_counter == k) { //WHEN THE nn_table HAS BEEN FILLED FULLY FOR THE FIRST TIME
                 sort(nn_table.begin(), nn_table.end(), compare_distance); //SORT THE FIRST k PAIRS IN ASCENDING DISTANCE ORDER
                 max_distance= nn_table[k-1].dist; //THE LAST ELEMENT OF THE nn_table HAS THE MAXIMUM DISTANCE FROM QUERY POINT
-                if (current_pair.dist < max_distance) {
+                if (current_pair.dist < max_distance && !already_exist(nn_table, current_pair.id) ) {
                     insert_at_correct_place(nn_table, current_pair);
                 }
                 candidates_counter++;
             }
             else { //IF THE nn_table ALREADY HAS k ID-DISTANCE PAIRS
-                if (current_pair.dist < max_distance) {
+                if (current_pair.dist < max_distance && !already_exist(nn_table, current_pair.id)) {
+
                     insert_at_correct_place(nn_table, current_pair);
                 }
                 candidates_counter++;
@@ -191,7 +192,7 @@ vector<dist_id_pair> find_exact_knn(vector<int> query_point, int k, int num_of_p
     if (nn_table.size() < k) { //JUST IN CASE THERE ARE LESS THAN k CANDIDATE POINTS IN THE BUCKETS
         sort(nn_table.begin(), nn_table.end(), compare_distance);
     }
-    
+
     return nn_table;
 }
 
