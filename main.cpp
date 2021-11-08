@@ -16,6 +16,7 @@
 #include "user_input.h"
 #include "hypercube.h"
 #include "cube.h"
+#include "cluster.h"
 
 
 using namespace std;
@@ -98,10 +99,10 @@ int main(int argc, char* argv[]){
     buckets = number_of_points/points_divider;
 
     //INITIALIZE G FUNCTION THAT LEADS US TO HASHTABLE BUCKETS
-    G_Lsh g_lsh(k, dimensions, generator, 6, M, buckets, L);
+    G_Lsh g_lsh(k, dimensions, generator, 100, M, buckets, L);
 
     //INITIALIZE G FUNCTION THAT LEADS US TO HYPERCUBE BUCKETS
-    G_Hypercube g_cube(dimensions, generator, 6, k_cube);
+    G_Hypercube g_cube(dimensions, generator, 500, k_cube);
 
     if(strcmp(argv[0], "./lsh") == 0){
 
@@ -255,7 +256,12 @@ int main(int argc, char* argv[]){
         close_file(&output_file);
         close_file(&query_file);
 
+
+
+        //continue_execution = 0;
     }
+
+    k_means_plus_plus(10);
 
     close_file(&input_file);
 

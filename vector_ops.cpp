@@ -115,6 +115,112 @@ int get_point_id_value(int index_value, int k){
     return id_value;
 }
 
+//INSERT A POINT ID TO CENTROIDS VECTOR
+void centroids_insert_point(int id){
+
+    centroids.push_back(id);
+}
+
+//GET NUMBER OF CENTROID POINTS
+int centroids_get_size(){
+
+    return centroids.size();
+}
+
+//CALCULATE THE MINIMUM DISTANCE BETWEEN A POINT FROM INPUT AND THE CENTROIDS
+static float centroids_calculate_min_distance_point(vector<int>& point){
+
+    
+    float min_distance = numeric_limits<float>::max();
+    float current_distance;
+
+    for(int i = 0; i < centroids_get_size(); i++){
+
+        //IF CURRENT INPUT POINT IS NOT ALREADY A CENTROID
+        //if(point[0] != centroids[i]){
+            //INITIAL CENTROIDS ARE POINTS FROM INPUT
+            current_distance = calculate_distance(point_vector[centroids[i] - 1], point);
+            if(current_distance < min_distance){
+
+                min_distance = current_distance;
+            }
+        //}
+        
+    }
+
+    return min_distance;
+
+}
+
+//CALCULATE MIN DISTANCE OF EVERY  NON CENTROID POINT TO CENTROIDS 
+void centroids_calculate_min_distance_input(vector<float>& points_min_distances){
+
+    float point_min_distance;
+
+    for(int i = 0; i < point_vector.size(); i++){
+        
+        point_min_distance = centroids_calculate_min_distance_point(point_vector[i]);
+
+        //IF CURRENT POINT IS NOT A CENTROID
+        if(point_min_distance != 0){
+            points_min_distances.push_back(point_min_distance);
+        }
+        
+    }
+}
+
+//PICK A POINT FROM INPUT POINTS RANDOMLY TO BE THE FIRST CENTROID
+void centroids_pick_first_centroid(){
+
+    int first_centroid_id;
+
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+
+    //WE USE UNIFORM DISTRIBUTION TO GET A POINT FROM INPUT POINTS
+    uniform_int_distribution<int> p_distribution(1, point_vector.size() + 1);
+
+    first_centroid_id = p_distribution(generator);
+
+    //INSERT THE FIRST CENTROID ID TO CENTROIDS VECTOR
+    centroids.push_back(first_centroid_id);
+
+}
+
+//PICK NEXT CENTROID
+void centroids_pick_next_centroid(vector<float>& partial_sums){
+
+    double x;
+
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine generator(seed);
+
+    uniform_real_distribution<float> distribution(0.0, partial_sums[partial_sums.size() - 1]);
+    //ASSIGN TO X A VALUE IN [0, P(n-t)] USING UNIFORM DISTRIBUTION
+    x = distribution(generator);
+    
+
+    int r = 0;
+
+    //GET INDEX OF THE NEXT CENTROID - WE NEED AN r THAT SATISFIES THE RELATION P(r-1) < x <= P(r)
+    while(x > partial_sums[r]){
+
+        r++;
+    }
+
+    //PUSH THE NEW CENTROID ID TO CENTROIDS VECTOR
+    centroids.push_back(r);
+
+}
+
+//PRINT CENTROIDS IDS - USED FOR CHECKING PURPOSES
+void centroids_print_data(){
+
+    for(int i = 0; i < centroids.size(); i++){
+        cout << centroids[i] << endl;
+    }
+}
+
 //CALCULATE DOT PRODUCT OF TWO VECTORS
 int calculate_dot_product(const vector <int>& point, vector <int>& d_vector){
     int product = 0;
@@ -136,4 +242,27 @@ float calculate_distance(vector<int>& point1, const vector<int>& point2, int k)
     distance = pow(sum, 1.0/(float)k);
 
     return distance;
+}
+
+//K-MEANS++: GET A VECTOR WITH ALL THE MINIMUM DISTANCES 
+//OF NON CENTROID POINTS TO CENTROIDS
+//AND CALCULATE THEIR PARTIAL SUMS
+//ALSO HOLD THE LAST PARTIAL SUMS
+float calculate_partial_sums(vector<float>& min_distances, vector<float>& partial_sums){
+
+    float sums = 0;
+    float last_partial_sum;
+
+    for (int i = 0; i < min_distances.size(); i++){
+
+        sums = sums + pow(min_distances[i], 2);
+        partial_sums.push_back(sums);
+
+        if(i == min_distances.size()){
+            last_partial_sum = sums;
+        }
+    }
+
+    return last_partial_sum;
+
 }
