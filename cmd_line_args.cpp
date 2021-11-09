@@ -155,6 +155,18 @@ int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
             cerr << "./cluster -i <input_file> -c <configuration_file> -m <Classic OR LSH or Hypercube>" << endl;
             return -1;
         }
+        else {
+            //INITIALIZE LSH AND HYPERCUBE ARGUMENTS WITH THE DEFAULT VALUES
+            l= 3;
+            k_lsh= 4;
+            k_cube= 3;
+            m= 10;
+            probes= 2;
+            n= 1;
+            if (!o_flag) {
+                output_file= "output_file";
+            }
+        }
     }
     return 0;
 }
