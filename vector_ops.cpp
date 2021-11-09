@@ -255,7 +255,7 @@ vector<int> add_vectors(vector<int>& point1, vector<int>& point2)
     }
     else {
         point3.assign(point1.size(), 0);
-        for (i=0 ; i < point1.size(); i++) {
+        for (i=1 ; i < point1.size(); i++) {
             point3[i]= point1[i] + point2[i];
         }
     }
@@ -271,7 +271,7 @@ vector<int> find_mean_vector(vector<int> vector_of_sums, int num_of_vectors)
     float float_mean_value;
     vector<int> mean_vector;
 
-    for (i=0; i < vector_of_sums.size() ; i++) {
+    for (i=1; i < vector_of_sums.size() ; i++) {
         float_mean_value= vector_of_sums[i]/(float)num_of_vectors;
         //ROUNDING OF THE EXACT MEAN VALUE SO THAT IT WILL BE STORED AS AN INTEGER
         if (int(float_mean_value*10) %10 >= 5) {

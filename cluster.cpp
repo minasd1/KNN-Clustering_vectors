@@ -31,21 +31,27 @@ void k_means_plus_plus(int k){
 //IN EACH ROW ARE STORED THE IDS OF THE INPUT POINTS THAT BELONG TO THAT CLUSTER
 //ALSO RECEIVES THE DIMENSION OF THE POINT VECTORS (HOW MANY COORDINATES EACH POINT HAS)
 //RETURNS A TABLE WITH EACH CLUSTER'S NEW CENTROID
-vector<vector<int>> update(vector<vector<int>> cluster_table, int dimensions)
+void update(vector<vector<int>>& cluster_table, vector<int>& centroids_ids)
 {
     int row, column;  //ITERATORS
+    int dimensions; //THE NUMBER OF COORDINATES AN INPUT POINT HAS
     vector<int> coordinates_sum;  //A TABLE OF THE SUMS OF THE 1ST, 2ND, ..., NTH COORDINATE OF THE POINTS IN THE SAME CLUSTER
     vector<int> current_point, mean_vector;
     vector<vector<int>> new_centroids;
 
+    dimensions= point_vector_get_point(1).size();
+    //CLEAR THE CENTROIDS VECTOR SO THE NEW CENTROIDS CAN BE PUSHED BACK IN IT
+    centroids_ids.clear();
+
     for (row=0 ; row < cluster_table.size() ; row++) { //FOR EACH CLUSTER
-        coordinates_sum.assign(dimensions,0); //INITIALIZE ALL SUMS (ONE SUM FOR EACH COORDINATE) WITH 0
+        coordinates_sum.assign(dimensions, 0); //INITIALIZE ALL SUMS (ONE SUM FOR EACH COORDINATE) WITH 0
         for (column=0 ; column < cluster_table[row].size(); column++) { //FOR EVERY POINT IN THE CLUSTER
             current_point= point_vector_get_point((cluster_table[row][column])-1);
             coordinates_sum= add_vectors(current_point, coordinates_sum);
         }
         mean_vector= find_mean_vector(coordinates_sum, cluster_table[row].size());
-        new_centroids.push_back(mean_vector);
+        mean_vector[0]= ++last_known_id;
+        point_vector_insert_point(mean_vector);
+        centroids_ids.push_back(mean_vector[0]);
     }
-    return new_centroids;
 }

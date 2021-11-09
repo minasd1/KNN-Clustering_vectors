@@ -10,7 +10,7 @@ using namespace std;
 
 
 void k_means_plus_plus(int k);
-vector<vector<int>> update(vector<vector<int>> cluster_table);
+void update(vector<vector<int>>& cluster_table, vector<int>& centroid_ids);
 
 
 

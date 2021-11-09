@@ -14,6 +14,7 @@
 
 using namespace std;
 
+static int last_known_id= 0; //ASSUMING THAT 1ST INPUT POINT'S IS 1 AND THE IDS ARE BEING INCREASED BY 1
 //A VECTOR OF THE POINTS READ FROM INPUT FILE
 static vector<vector <int> > point_vector;
 
