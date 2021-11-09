@@ -130,42 +130,42 @@ int centroids_get_size(){
 //CALCULATE THE MINIMUM DISTANCE BETWEEN A POINT FROM INPUT AND THE CENTROIDS
 float centroids_calculate_min_distance_point(vector<int>& point){
 
-    
+
     float min_distance = numeric_limits<float>::max();
     float current_distance;
 
     for(int i = 0; i < centroids_get_size(); i++){
-        
+
         //INITIAL CENTROIDS ARE POINTS FROM INPUT
         current_distance = calculate_distance(point_vector[centroids[i] - 1], point);
-           
+
         if(current_distance < min_distance){
 
             min_distance = current_distance;
         }
-        
-        
+
+
     }
 
     return min_distance;
 
 }
 
-//CALCULATE MIN DISTANCE OF EVERY  NON CENTROID POINT TO CENTROIDS 
+//CALCULATE MIN DISTANCE OF EVERY  NON CENTROID POINT TO CENTROIDS
 void centroids_calculate_min_distance_input(vector<float>& points_min_distances){
 
     float point_min_distance;
 
     for(int i = 0; i < point_vector.size(); i++){
-        
+
         point_min_distance = centroids_calculate_min_distance_point(point_vector[i]);
 
         //IF CURRENT POINT IS NOT A CENTROID
         if(point_min_distance != 0){
-        
+
             points_min_distances.push_back(point_min_distance);
         }
-        
+
     }
 }
 
@@ -218,7 +218,7 @@ void centroids_pick_next_centroid(vector<float>& partial_sums){
         it = find(centroids.begin(), centroids.end(), r);
 
     }while(it != centroids.end());  //WHILE r ALREADY EXISTS IN CENTROIDS - CALCULATE A NEW r
-   
+
 
     //PUSH THE NEW CENTROID ID TO CENTROIDS VECTOR
     centroids.push_back(r);
@@ -242,6 +242,49 @@ int calculate_dot_product(const vector <int>& point, vector <int>& d_vector){
     return product;
 }
 
+//CALCULATES THE ADDITION OF TWO INTEGER VECTORS OF THE SAME SIZE
+//EG. v1= [0, 2, 4, 8]  v2= [0, 1, -1, -5]  v1+v2= v3= [0, 3, 3, 3]
+vector<int> add_vectors(vector<int>& point1, vector<int>& point2)
+{
+    int i;
+    vector<int> point3;
+
+    if (point1.size() != point2.size()) {
+        cerr << "Error in add_vectors: Can not add vectors of different size" << endl;
+        point3.assign(point1.size(), -666);
+    }
+    else {
+        point3.assign(point1.size(), 0);
+        for (i=0 ; i < point1.size(); i++) {
+            point3[i]= point1[i] + point2[i];
+        }
+    }
+    return point3;
+}
+
+//RECEIVES A VECTOR OF SUMS AND THE NUMBER OF VECTORS THAT WERE ADDED
+//RETURNS A VECTOR THAT CONTAINS THE FLOOR OF THE MEAN VALUE FOR EACH COORDINATE
+vector<int> find_mean_vector(vector<int> vector_of_sums, int num_of_vectors)
+{
+    int i;
+    int mean_value;
+    float float_mean_value;
+    vector<int> mean_vector;
+
+    for (i=0; i < vector_of_sums.size() ; i++) {
+        float_mean_value= vector_of_sums[i]/(float)num_of_vectors;
+        //ROUNDING OF THE EXACT MEAN VALUE SO THAT IT WILL BE STORED AS AN INTEGER
+        if (int(float_mean_value*10) %10 >= 5) {
+            mean_value= (float_mean_value+1)/1;
+        }
+        else {
+            mean_value= float_mean_value/1;
+        }
+        mean_vector.push_back(mean_value);
+    }
+    return mean_vector;
+}
+
 //COMPUTES THE DISTANCE BETWEEN 2 VECTORS USING THE k-NORM
 float calculate_distance(vector<int>& point1, const vector<int>& point2, int k)
 {
@@ -256,7 +299,7 @@ float calculate_distance(vector<int>& point1, const vector<int>& point2, int k)
     return distance;
 }
 
-//K-MEANS++: GET A VECTOR WITH ALL THE MINIMUM DISTANCES 
+//K-MEANS++: GET A VECTOR WITH ALL THE MINIMUM DISTANCES
 //OF NON CENTROID POINTS TO CENTROIDS
 //AND CALCULATE THEIR PARTIAL SUMS
 //ALSO HOLD THE LAST PARTIAL SUMS
