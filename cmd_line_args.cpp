@@ -9,10 +9,12 @@ using namespace std;
 //               1 ->No query file was given in the command line
 //Initializes program's variables with command line arguments
 int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
-                      int& k_lsh, int& k_cube, int& l, string& output_file, int& n, float& r, int& m, int& probes)
+                      int& k_lsh, int& k_cube, int& l, string& output_file, int& n,
+                      float& r, int& m, int& probes, string& config_file, string& method)
 {
     int i;
-    bool i_flag, k_lsh_flag, k_cube_flag, l_flag, o_flag, q_flag,n_flag, r_flag, p_flag, m_flag;
+    bool i_flag, k_lsh_flag, k_cube_flag, l_flag, o_flag, q_flag,n_flag, r_flag,
+         p_flag, m_flag, c_flag, method_flag, complete_flag;
 
     //Flags for given arguments (false for missing args)
     i_flag= false;
@@ -25,10 +27,23 @@ int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
     r_flag= false;
     p_flag= false;
     m_flag= false;
+    c_flag= false;
+    method_flag= false;
+    complete_flag= false;
 
-    if (argc < 5) {     //At least ./program, -i <input_file> -q <query_file> must be given
-        cerr << "Not all arguments were given\nPlease run the program as below:\n\n\
-        ./lsh -i <input_file> -q <query_file>" << endl;
+    if (argc < 5 && ((string)argv[0] == "./lsh"  || (string)argv[0] == "./cube")) {     //At least ./program, -i <input_file> -q <query_file> must be given
+        cerr << "Not all arguments were given\nPlease run the program as below:\n" << endl;
+        if ((string)argv[0] == "./lsh"){
+            cerr << "./lsh -i <input_file> -q <query_file>" << endl;
+        }
+        else if ((string)argv[0] == "./cube") {
+            cerr << "./cube -i <input_file> -q <query_file>" << endl;
+        }
+        return -1;
+    }
+    if (argc < 7 && (string)argv[0] == "./cluster") {
+        cerr << "Not all arguments were given\nPlease run the program as below:\n" << endl;
+        cerr << "./cluster -i <input_file> -c <configuration_file> -m <Classic OR LSH or Hypercube>" << endl;
         return -1;
     }
     for (i=1; i < argc ; i+=2) { //For every other argument
@@ -36,7 +51,7 @@ int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
             i_flag= true;
             input_file= argv[i+1];
         }
-        else if((string)argv[i] == "-q") {
+        else if((string)argv[i] == "-q" && ((string)argv[0] == "./lsh"  || (string)argv[0] == "./cube")) {
             q_flag= true;
             query_file= argv[i+1];
         }
@@ -44,7 +59,7 @@ int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
             k_lsh_flag= true;
             k_lsh= stoi(argv[i+1]);
         }
-        else if((string)argv[i] == "-L") {
+        else if((string)argv[i] == "-L" && (string)argv[0] == "./lsh") {
             l_flag= true;
             l= stoi(argv[i+1]);
         }
@@ -52,11 +67,11 @@ int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
             o_flag= true;
             output_file= argv[i+1];
         }
-        else if((string)argv[i] == "-N") {
+        else if((string)argv[i] == "-N" && ((string)argv[0] == "./lsh"  || (string)argv[0] == "./cube")) {
             n_flag= true;
             n= stoi(argv[i+1]);
         }
-        else if((string)argv[i] == "-R") {
+        else if((string)argv[i] == "-R" && ((string)argv[0] == "./lsh"  || (string)argv[0] == "./cube")) {
             r_flag= true;
             r= stof(argv[i+1]);
         }
@@ -72,33 +87,74 @@ int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
             k_cube_flag= true;
             k_cube= stoi(argv[i+1]);
         }
+        else if ((string)argv[i] == "-c" && (string)argv[0] == "./cluster") {
+            c_flag= true;
+            config_file= argv[i+1];
+        }
+        else if ((string)argv[i] == "-complete" && (string)argv[0] == "./cluster") {
+            complete_flag= true;
+        }
+        else if ((string)argv[i] == "-m" && (string)argv[0] == "./cluster") {
+            if ((string)argv[i+1] == "Classic" || (string)argv[i+1] == "classic"
+                || (string)argv[i+1] == "CLASSIC"){
+                    method_flag= true;
+                    method= "classic";
+            }
+            else if ((string)argv[i+1] == "Lsh" || (string)argv[i+1] == "lsh"
+                || (string)argv[i+1] == "LSH") {
+                    method_flag= true;
+                    method= "lsh";
+            }
+            else if ((string)argv[i+1] == "Hypercube" || (string)argv[i+1] == "hypercube"
+                || (string)argv[i+1] == "HYPERCUBE") {
+                    method_flag= true;
+                    method= "hypercube";
+            }
+            else {
+                cerr << "Unknown method \"" << argv[i+1] << "\". " << "Please run the program with one of the acceptable methods:" << endl;
+                cerr << "(Classic, Lsh, Hypercube)" << endl;
+                return -1;
+            }
+        }
         else {
             cerr << "Wrong input arguent: " << argv[i] << endl;
             return -1;
         }
     }
-    if (i_flag && q_flag) {
-        //Initialize missing arguments with default values
-        if (!k_lsh_flag)
-            k_lsh= 4;
-        if  (!k_cube_flag)
-            k_cube= 14;
-        if (!l_flag)
-            l= 5;
-        if(!n_flag)
-            n= 1;
-        if(!r_flag)
-            r= 10000.0;
-        if (!m_flag && (string)argv[0]=="./cube")
-            m= 10;
-        if (!p_flag && (string)argv[0]=="./cube")
-            probes= 2;
-        if (!o_flag)
-            output_file= "output_file";
-        return 0;
+    if ((string)argv[0] == "./lsh"  || (string)argv[0] == "./cube" ) {
+        if (i_flag && q_flag) {
+            //Initialize missing arguments with default values
+            if (!k_lsh_flag)
+                k_lsh= 4;
+            if  (!k_cube_flag)
+                k_cube= 14;
+            if (!l_flag)
+                l= 5;
+            if(!n_flag)
+                n= 1;
+            if(!r_flag)
+                r= 10000.0;
+            if (!m_flag && (string)argv[0]=="./cube")
+                m= 10;
+            if (!p_flag && (string)argv[0]=="./cube")
+                probes= 2;
+            if (!o_flag)
+                output_file= "output_file";
+            return 0;
+        }
+        else {
+            cerr << "The input file and/or the query file is missing" << endl;
+            return -1;
+        }
     }
-    else {
-        cerr << "The input file and/or the query file is missing" << endl;
-        return -1;
+    else if ((string)argv[0] == "./cluster"){
+        if (!i_flag || !method_flag || !c_flag) {
+            cerr << "At least one of the following is missing: ";
+            cerr << "(Input file, Configuration file, Method)" << endl;
+            cerr << "Please run the program as below:\n" << endl;
+            cerr << "./cluster -i <input_file> -c <configuration_file> -m <Classic OR LSH or Hypercube>" << endl;
+            return -1;
+        }
     }
+    return 0;
 }
