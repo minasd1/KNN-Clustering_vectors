@@ -23,4 +23,6 @@ void k_means_plus_plus(int k){
         t++;
     }
 
+    centroids_print_data();
+
 }

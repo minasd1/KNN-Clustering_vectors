@@ -33,9 +33,9 @@ void read_user_input(string& query_file, int* continue_execution){
             cin >> query_file_name;
             getchar();
             
-            if(query_file_name.compare("query_small_id") == 0){
-                cout << "it is the same!" << endl;
-            }
+            // if(query_file_name.compare("query_small_id") == 0){
+            //     cout << "it is the same!" << endl;
+            // }
 
             valid_input = 1;
 
