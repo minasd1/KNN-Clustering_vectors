@@ -16,6 +16,7 @@
 #include "user_input.h"
 #include "hypercube.h"
 #include "cube.h"
+#include "cluster.h"
 
 
 using namespace std;
@@ -34,6 +35,7 @@ int main(int argc, char* argv[]){
 
     fstream input_file;             //FILE WE READ INPUT FROM
     fstream query_file;             //FILE WE READ QUERIES FROM
+    fstream config_file;            //CLUSTER CONFIGURATION FILE
     fstream output_file;            //FILE TO WRITE OUTPUT TO
     int point_id;
     string line;
@@ -130,138 +132,165 @@ int main(int argc, char* argv[]){
 
     }
 
+    //OPEN FILE TO WRITE RESULTS TO
+    open_file(&output_file, output_file_name, fstream::out);
 
     while(continue_execution == 1){
 
+        if(strcmp(argv[0], "./lsh") == 0 || strcmp(argv[0], "./cube") == 0){
 
-        //OPEN FILE TO READ QUERY FILES FROM
-        open_file(&query_file, query_file_name, fstream::in);
+            //OPEN FILE TO READ QUERY FILES FROM
+            open_file(&query_file, query_file_name, fstream::in);
 
-        //OPEN FILE TO WRITE RESULTS TO
-        open_file(&output_file, output_file_name, fstream::out);
+            finish = 0;
 
-        finish = 0;
+            while(getline(query_file, line)){                       //READ QUERY FILE LINE BY LINE
 
-        while(getline(query_file, line)){                       //READ QUERY FILE LINE BY LINE
+                vector<int> query_point;
+                start = 0;
+                while(start < line.size()){                         //TOKENIZE EVERY LINE IN IT'S SEPERATED STRINGS
+                    finish = line.find_first_of(' ', start);
 
-            vector<int> query_point;
-            start = 0;
-            while(start < line.size()){                         //TOKENIZE EVERY LINE IN IT'S SEPERATED STRINGS
-                finish = line.find_first_of(' ', start);
+                    if(finish == string::npos){
+
+                        finish = line.size();
+                    }
+
+                    if(start < line.size() - 1){
+                        token = line.substr(start, finish - start);
+                        query_point.push_back(stoi(token));               //CONVERT THE STRINGS TO INTEGERS AND PASS THEM TO QUERY POINT VECTOR
+                    }
+
+                    start = finish + 1;
+
+                }
+
+                if(strcmp(argv[0], "./lsh") == 0){
+                    g_lsh.hash(query_point, hash_vector, 1);
+
+                    //LSH NEAREST NEIGHBORS
+                    //FIND TIME LSH - APPROXIMATE NEIGHBORS
+                    auto start_time = std::chrono::high_resolution_clock::now();
+                    points_lsh= lsh_find_approximate_knn(query_point, N, g_lsh);
+                    auto stop_time = std::chrono::high_resolution_clock::now();
+                    auto time_lsh = std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time);
+                    //FIND TIME BRUTE FORCE - EXACT NEIGHBORS
+                    auto start_time2 = std::chrono::high_resolution_clock::now();
+                    points_brute= find_exact_knn(query_point, N, number_of_points);
+                    auto stop_time2 = std::chrono::high_resolution_clock::now();
+                    auto time_brute = std::chrono::duration_cast<std::chrono::microseconds>(stop_time2 - start_time2);
+                    //PRINTING IN OUTPUT FILE
+                    output_file << "Query: " << query_point[0] << endl;
+                    for (i= 1; i <= N ; i++) {
+                        if (i > points_lsh.size()) {
+                            output_file << "Nearest neighbor-" << i<< ": Not enough points in buckets (Consider to decrease hash table size or window)" << endl;
+                            output_file << "distanceLSH: Not enough points in buckets (Consider to decrease hash table size or window)" << endl;
+                            continue;
+                        }
+                        output_file << "Nearest neighbor-" << i<< ": " << points_lsh[i-1].id << endl;
+                        output_file << "distanceLSH: " << points_lsh[i-1].dist << endl;
+                        output_file << "distanceTrue: " << points_brute[i-1].dist << endl;
+                    }
+                    output_file <<  "tLSH: " << time_lsh.count() << " microseconds" << endl;
+                    output_file << "tTrue: " << time_brute.count() << " microseconds" << endl;
+
+                    //LSH RANGE SEARCH
+                    vector<int> points_in_range = lsh_range_search(hash_vector, 1000, query_point);
+
+                    output_file << "R-near neighbors:" << endl;
+
+                    //PRINT IDS OF POINTS IN RANGE
+                    for(int i = 0; i < points_in_range.size(); i++){
+
+                        output_file << points_in_range[i] << endl;
+                    }
+
+                }
+                else if(strcmp(argv[0], "./cube") == 0){
+                    //DO STUFF
+                    g_cube.hash(query_point, hash_value, 1);
+
+                    output_file << "Query: " << query_point[0] << endl;
+
+                    //--------------
+                    //CUBE NEAREST NEIGHBORS
+                    //FIND TIME CUBE - APPROXIMATE NEIGHBORS
+                    auto start_time = std::chrono::high_resolution_clock::now();
+                    points_cube= cube_find_approximate_knn(query_point, N, g_cube, probes, k_cube, M_cube);
+                    auto stop_time = std::chrono::high_resolution_clock::now();
+                    auto time_cube = std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time);
+                    //FIND TIME BRUTE FORCE - EXACT NEIGHBORS
+                    auto start_time2 = std::chrono::high_resolution_clock::now();
+                    points_brute= find_exact_knn(query_point, N, number_of_points);
+                    auto stop_time2 = std::chrono::high_resolution_clock::now();
+                    auto time_brute = std::chrono::duration_cast<std::chrono::microseconds>(stop_time2 - start_time2);
+                    // //PRINTING IN OUTPUT FILE
+                    for (i= 1; i <= N ; i++) {
+                        //IF NO POINTS FOUND
+                        if(points_cube[i-1].id == -1){
+                            output_file << "No points found in query's bucket or it's relative buckets" << endl;
+                        }
+                        else{
+                            output_file << "Nearest neighbor-" << i<< ": " << points_cube[i-1].id << endl;
+                            output_file << "distanceCUBE: " << points_cube[i-1].dist << endl;
+                        }
+
+                        output_file << "distanceTrue: " << points_brute[i-1].dist << endl;
+
+                    }
+                    output_file <<  "tCUBE: " << time_cube.count() << " microseconds" << endl;
+                    output_file << "tTrue: " << time_brute.count() << " microseconds" << endl;
+                    //-----------------
+                    //HYPERCUBE RANGE SEARCH
+                    vector<int> points_in_range = cube_range_search(hash_value, 1000, probes, k_cube, query_point);
+                    output_file << "R-near neighbors:" << endl;
+
+                    //PRINT IDS OF POINTS IN RANGE
+                    for(int i = 0; i < points_in_range.size(); i++){
+
+                        output_file << points_in_range[i] << endl;
+                    }
+                }
+
+
+                hash_vector.clear();
+
+
+            }
+
+
+            read_user_input(query_file_name, &continue_execution);
+            close_file(&output_file);
+            close_file(&query_file);
+        }
+        else if(strcmp(argv[0], "./cube") == 0){
+
+            //OPEN CLUSTER CONFIGURATION FILE
+            open_file(&config_file, argv[3], fstream::in);
+
+            finish = 0;
+
+            while(getline(config_file, line)){
+
+                start = 0;
+                while(start < line.size()){
+                    finish = line.find_first_of(' ', start);
+                }
 
                 if(finish == string::npos){
 
                     finish = line.size();
                 }
 
-                if(start < line.size() - 1){
-                    token = line.substr(start, finish - start);
-                    query_point.push_back(stoi(token));               //CONVERT THE STRINGS TO INTEGERS AND PASS THEM TO QUERY POINT VECTOR
-                }
-
+                token = line.substr(start, finish - start);
                 start = finish + 1;
-
+                cout << "token is " << token << endl; 
             }
-
-            if(strcmp(argv[0], "./lsh") == 0){
-                g_lsh.hash(query_point, hash_vector, 1);
-
-                //LSH NEAREST NEIGHBORS
-                //FIND TIME LSH - APPROXIMATE NEIGHBORS
-                auto start_time = std::chrono::high_resolution_clock::now();
-                points_lsh= lsh_find_approximate_knn(query_point, N, g_lsh);
-                auto stop_time = std::chrono::high_resolution_clock::now();
-                auto time_lsh = std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time);
-                //FIND TIME BRUTE FORCE - EXACT NEIGHBORS
-                auto start_time2 = std::chrono::high_resolution_clock::now();
-                points_brute= find_exact_knn(query_point, N, number_of_points);
-                auto stop_time2 = std::chrono::high_resolution_clock::now();
-                auto time_brute = std::chrono::duration_cast<std::chrono::microseconds>(stop_time2 - start_time2);
-                //PRINTING IN OUTPUT FILE
-                output_file << "Query: " << query_point[0] << endl;
-                for (i= 1; i <= N ; i++) {
-                    if (i > points_lsh.size()) {
-                        output_file << "Nearest neighbor-" << i<< ": Not enough points in buckets (Consider to decrease hash table size or window)" << endl;
-                        output_file << "distanceLSH: Not enough points in buckets (Consider to decrease hash table size or window)" << endl;
-                        continue;
-                    }
-                    output_file << "Nearest neighbor-" << i<< ": " << points_lsh[i-1].id << endl;
-                    output_file << "distanceLSH: " << points_lsh[i-1].dist << endl;
-                    output_file << "distanceTrue: " << points_brute[i-1].dist << endl;
-                }
-                output_file <<  "tLSH: " << time_lsh.count() << " microseconds" << endl;
-                output_file << "tTrue: " << time_brute.count() << " microseconds" << endl;
-
-                //LSH RANGE SEARCH
-                vector<int> points_in_range = lsh_range_search(hash_vector, 1000, query_point);
-
-                output_file << "R-near neighbors:" << endl;
-
-                //PRINT IDS OF POINTS IN RANGE
-                for(int i = 0; i < points_in_range.size(); i++){
-
-                    output_file << points_in_range[i] << endl;
-                }
-
-            }
-            else if(strcmp(argv[0], "./cube") == 0){
-                //DO STUFF
-                g_cube.hash(query_point, hash_value, 1);
-
-                output_file << "Query: " << query_point[0] << endl;
-
-                //--------------
-                //CUBE NEAREST NEIGHBORS
-                //FIND TIME CUBE - APPROXIMATE NEIGHBORS
-                auto start_time = std::chrono::high_resolution_clock::now();
-                points_cube= cube_find_approximate_knn(query_point, N, g_cube, probes, k_cube, M_cube);
-                auto stop_time = std::chrono::high_resolution_clock::now();
-                auto time_cube = std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time);
-                //FIND TIME BRUTE FORCE - EXACT NEIGHBORS
-                auto start_time2 = std::chrono::high_resolution_clock::now();
-                points_brute= find_exact_knn(query_point, N, number_of_points);
-                auto stop_time2 = std::chrono::high_resolution_clock::now();
-                auto time_brute = std::chrono::duration_cast<std::chrono::microseconds>(stop_time2 - start_time2);
-                // //PRINTING IN OUTPUT FILE
-                for (i= 1; i <= N ; i++) {
-                    //IF NO POINTS FOUND
-                    if(points_cube[i-1].id == -1){
-                        output_file << "No points found in query's bucket or it's relative buckets" << endl;
-                    }
-                    else{
-                        output_file << "Nearest neighbor-" << i<< ": " << points_cube[i-1].id << endl;
-                        output_file << "distanceCUBE: " << points_cube[i-1].dist << endl;
-                    }
-
-                    output_file << "distanceTrue: " << points_brute[i-1].dist << endl;
-
-                }
-                output_file <<  "tCUBE: " << time_cube.count() << " microseconds" << endl;
-                output_file << "tTrue: " << time_brute.count() << " microseconds" << endl;
-                //-----------------
-                //HYPERCUBE RANGE SEARCH
-                vector<int> points_in_range = cube_range_search(hash_value, 1000, probes, k_cube, query_point);
-                output_file << "R-near neighbors:" << endl;
-
-                //PRINT IDS OF POINTS IN RANGE
-                for(int i = 0; i < points_in_range.size(); i++){
-
-                    output_file << points_in_range[i] << endl;
-                }
-            }
-
-
-            hash_vector.clear();
-
-
         }
 
-
-        read_user_input(query_file_name, &continue_execution);
-        close_file(&output_file);
-        close_file(&query_file);
-
     }
+
+    k_means_plus_plus(9);
 
     close_file(&input_file);
 
