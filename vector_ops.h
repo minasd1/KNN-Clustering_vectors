@@ -46,7 +46,7 @@ int get_point_id_value(int index_value, int k);
 /*-----------------------CENTROID FUNCTIONS-------------------------------*/
 void centroids_insert_point(int id);
 int centroids_get_size();
-static float centroids_calculate_min_distance_point(vector<int>& point);
+float centroids_calculate_min_distance_point(vector<int>& point);
 void centroids_calculate_min_distance_input(vector<float>& points_min_distances);
 void centroids_pick_first_centroid();
 void centroids_pick_next_centroid(vector<float>& partial_sums);

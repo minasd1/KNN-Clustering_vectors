@@ -4,7 +4,7 @@
 
 void k_means_plus_plus(int k){
 
-    int t = 0;                              //CURRENT NUMBER OF CENTROIDS                                        
+    int t = 1;                              //CURRENT NUMBER OF CENTROIDS                                        
 
     vector<float> points_min_distances;     //EVERY NON CENTROID POINT MIN DISTANCE TO CENTROIDS
     vector <float> partial_sums;
@@ -22,6 +22,5 @@ void k_means_plus_plus(int k){
         centroids_pick_next_centroid(partial_sums);
         t++;
     }
-
 
 }

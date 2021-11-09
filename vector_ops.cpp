@@ -128,23 +128,22 @@ int centroids_get_size(){
 }
 
 //CALCULATE THE MINIMUM DISTANCE BETWEEN A POINT FROM INPUT AND THE CENTROIDS
-static float centroids_calculate_min_distance_point(vector<int>& point){
+float centroids_calculate_min_distance_point(vector<int>& point){
 
     
     float min_distance = numeric_limits<float>::max();
     float current_distance;
 
     for(int i = 0; i < centroids_get_size(); i++){
+        
+        //INITIAL CENTROIDS ARE POINTS FROM INPUT
+        current_distance = calculate_distance(point_vector[centroids[i] - 1], point);
+           
+        if(current_distance < min_distance){
 
-        //IF CURRENT INPUT POINT IS NOT ALREADY A CENTROID
-        //if(point[0] != centroids[i]){
-            //INITIAL CENTROIDS ARE POINTS FROM INPUT
-            current_distance = calculate_distance(point_vector[centroids[i] - 1], point);
-            if(current_distance < min_distance){
-
-                min_distance = current_distance;
-            }
-        //}
+            min_distance = current_distance;
+        }
+        
         
     }
 
@@ -163,6 +162,7 @@ void centroids_calculate_min_distance_input(vector<float>& points_min_distances)
 
         //IF CURRENT POINT IS NOT A CENTROID
         if(point_min_distance != 0){
+        
             points_min_distances.push_back(point_min_distance);
         }
         
@@ -178,7 +178,7 @@ void centroids_pick_first_centroid(){
     default_random_engine generator(seed);
 
     //WE USE UNIFORM DISTRIBUTION TO GET A POINT FROM INPUT POINTS
-    uniform_int_distribution<int> p_distribution(1, point_vector.size() + 1);
+    uniform_int_distribution<int> p_distribution(1, point_vector.size());
 
     first_centroid_id = p_distribution(generator);
 
@@ -191,22 +191,34 @@ void centroids_pick_first_centroid(){
 void centroids_pick_next_centroid(vector<float>& partial_sums){
 
     double x;
+    int r, i;
+
+    vector<int>::iterator it;
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator(seed);
 
     uniform_real_distribution<float> distribution(0.0, partial_sums[partial_sums.size() - 1]);
-    //ASSIGN TO X A VALUE IN [0, P(n-t)] USING UNIFORM DISTRIBUTION
-    x = distribution(generator);
-    
 
-    int r = 0;
+    do{
 
-    //GET INDEX OF THE NEXT CENTROID - WE NEED AN r THAT SATISFIES THE RELATION P(r-1) < x <= P(r)
-    while(x > partial_sums[r]){
+        i = 0;
+        r = 1;
 
-        r++;
-    }
+        //ASSIGN TO X A VALUE IN [0, P(n-t)] USING UNIFORM DISTRIBUTION
+        x = distribution(generator);
+
+        //GET INDEX OF THE NEXT CENTROID - WE NEED AN r THAT SATISFIES THE RELATION P(r-1) < x <= P(r)
+        while(x > partial_sums[i]){
+
+            r++;
+            i++;
+        }
+
+        it = find(centroids.begin(), centroids.end(), r);
+
+    }while(it != centroids.end());  //WHILE r ALREADY EXISTS IN CENTROIDS - CALCULATE A NEW r
+   
 
     //PUSH THE NEW CENTROID ID TO CENTROIDS VECTOR
     centroids.push_back(r);
