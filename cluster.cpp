@@ -37,7 +37,7 @@ void k_means_plus_plus(int k){
 //IN EACH ROW ARE STORED THE IDS OF THE INPUT POINTS THAT BELONG TO THAT CLUSTER
 //ALSO RECEIVES THE DIMENSION OF THE POINT VECTORS (HOW MANY COORDINATES EACH POINT HAS)
 //RETURNS A TABLE WITH EACH CLUSTER'S NEW CENTROID
-void update(vector<vector<int>>& cluster_table, vector<int>& centroids_ids, int& last_known_id)
+void update(vector<vector<int>>& cluster_table, int& last_known_id)
 {
     int row, column;  //ITERATORS
     int dimensions; //THE NUMBER OF COORDINATES AN INPUT POINT HAS
@@ -47,7 +47,8 @@ void update(vector<vector<int>>& cluster_table, vector<int>& centroids_ids, int&
 
     dimensions= point_vector_get_point(1).size();
     //CLEAR THE CENTROIDS VECTOR SO THE NEW CENTROIDS CAN BE PUSHED BACK IN IT
-    centroids_ids.clear();
+    //centroids_ids.clear();
+    centroids_clear();
 
     for (row=0 ; row < cluster_table.size() ; row++) { //FOR EACH CLUSTER
         coordinates_sum.assign(dimensions, 0); //INITIALIZE ALL SUMS (ONE SUM FOR EACH COORDINATE) WITH 0
@@ -58,9 +59,10 @@ void update(vector<vector<int>>& cluster_table, vector<int>& centroids_ids, int&
         mean_vector= find_mean_vector(coordinates_sum, cluster_table[row].size());
         mean_vector[0]= ++last_known_id;
         point_vector_insert_point(mean_vector);
-        centroids_ids.push_back(mean_vector[0]);
+        //centroids_ids.push_back(mean_vector[0]);
+        centroids_insert_point(mean_vector[0]);
     }
-    set_centroids_id(centroids_ids);
+    //set_centroids_id(centroids_ids);
 }
 
 /*//IMPLEMENTATION OF THE LLOYDS ALGORITHM

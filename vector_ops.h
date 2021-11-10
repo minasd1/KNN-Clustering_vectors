@@ -61,6 +61,7 @@ int centroids_find_nearest_centroid(vector<int>& centroids, int id);
 void centroids_duplicates_assign_to_nearest_centroid(vector<pair<vector<int>,int>>& points_in_range);
 int get_centroids_id(int i);
 void set_centroids_id(vector<int> v);
+void centroids_clear();
 void centroids_print_data();
 
 /*-----------------------IS ASSIGNED VECTOR FUNCTIONS-----------------------*/

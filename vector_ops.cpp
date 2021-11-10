@@ -333,6 +333,23 @@ void centroids_duplicates_assign_to_nearest_centroid(vector<pair<vector<int>,int
     label_assigned_points(points_in_range);
 }
 
+int get_centroids_id(int i){
+    return centroids[i];
+}
+
+void set_centroids_id(vector<int> v){
+    int i;
+
+    for(i=0 ; i < v.size() ; i++) {
+        centroids[i]= v[i];
+    }
+}
+
+void centroids_clear(){
+
+    centroids.clear();
+}
+
 //PRINT CENTROIDS IDS - USED FOR CHECKING PURPOSES
 void centroids_print_data(){
 
@@ -424,18 +441,6 @@ void label_assigned_points(vector<pair<vector<int>,int>>& points_in_range){
             //KEEP TRACK OF THE FIRST INDEX OF EVERY CLUSTER THAT HAS NOT BEEN ASSIGNED
             points_in_range[i].second++;
         }
-    }
-}
-
-int get_centroids_id(int i){
-    return centroids[i];
-}
-
-void set_centroids_id(vector<int> v){
-    int i;
-
-    for(i=0 ; i < v.size() ; i++) {
-        centroids[i]= v[i];
     }
 }
 
