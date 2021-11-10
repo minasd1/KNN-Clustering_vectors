@@ -233,6 +233,18 @@ void centroids_print_data(){
     }
 }
 
+int get_centroids_id(int i){
+    return centroids[i];
+}
+
+void set_centroids_id(vector<int> v){
+    int i;
+
+    for(i=0 ; i < v.size() ; i++) {
+        centroids[i]= v[i];
+    }
+}
+
 //CALCULATE DOT PRODUCT OF TWO VECTORS
 int calculate_dot_product(const vector <int>& point, vector <int>& d_vector){
     int product = 0;
