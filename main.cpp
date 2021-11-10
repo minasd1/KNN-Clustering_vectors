@@ -101,23 +101,23 @@ int main(int argc, char* argv[]){
     is_assigned_initialize();
 
     if(strcmp(argv[0], "./cluster") == 0){
-        
+
         //OPEN CLUSTER CONFIGURATION FILE
         open_file(&config_file, config_file_name, fstream::in);
-        
+
         finish = 0;
         int count = 0;
 
         while(getline(config_file, line)){
-            
+
             start = 0;
             while(start < line.size()){
-                
+
                 start = line.find_first_of(' ', start);
-                
+
                 finish = line.size();
-                
-                    
+
+
                 token = line.substr(start, finish - start);
                 if(count == 0){
                     k_cluster = stoi(token);
@@ -139,11 +139,11 @@ int main(int argc, char* argv[]){
                 }
 
                 start = finish;
-                
+
                 count++;
             }
 
-             
+
         }
 
         close_file(&config_file);
@@ -344,7 +344,7 @@ int main(int argc, char* argv[]){
 
                 token = line.substr(start, finish - start);
                 start = finish + 1;
-                cout << "token is " << token << endl; 
+                cout << "token is " << token << endl;
             }
         }
         else if(strcmp(argv[0], "./cluster") == 0){
@@ -361,7 +361,10 @@ int main(int argc, char* argv[]){
 
     }
 
-    reverse_assignment_lsh(g_lsh, k_cluster);
+    open_file(&output_file, output_file_name, fstream::out);
+    //reverse_assignment_lsh(g_lsh, k_cluster);
+    lloyds(4, number_of_points, output_file, false);
+    close_file(&output_file);
 
     close_file(&input_file);
 
