@@ -32,6 +32,7 @@ int main(int argc, char* argv[]){
     int k_cube ;                    //D'
     int M_cube ;                    //MAX NUMBER OF CANDIDATE POINTS TO BE CHECKED
     int window= 100;
+    int k_cluster ;
 
     fstream input_file;             //FILE WE READ INPUT FROM
     fstream query_file;             //FILE WE READ QUERIES FROM
@@ -96,6 +97,64 @@ int main(int argc, char* argv[]){
         first_iteration = false;
     }
 
+    //MARK ALL THE INPUT POINTS AS UNASSIGNED
+    is_assigned_initialize();
+
+    if(strcmp(argv[0], "./cluster") == 0){
+        
+        //OPEN CLUSTER CONFIGURATION FILE
+        open_file(&config_file, config_file_name, fstream::in);
+        
+        finish = 0;
+        int count = 0;
+
+        while(getline(config_file, line)){
+            
+            start = 0;
+            while(start < line.size()){
+                
+                start = line.find_first_of(' ', start);
+                
+                finish = line.size();
+                
+                    
+                token = line.substr(start, finish - start);
+                if(count == 0){
+                    k_cluster = stoi(token);
+                }
+                else if(count == 1){
+                    L = stoi(token);
+                }
+                else if(count == 2){
+                    k = stoi(token);
+                }
+                else if(count == 3){
+                    M_cube = stoi(token);
+                }
+                else if(count == 4){
+                    k_cube = stoi(token);
+                }
+                else if(count == 5){
+                    probes = stoi(token);
+                }
+
+                start = finish;
+                
+                count++;
+            }
+
+             
+        }
+
+        close_file(&config_file);
+    }
+    cout << "k_cluster: " << k_cluster << endl;
+    cout << "L: " << L << endl;
+    cout << "k: " << k << endl;
+    cout << "M_cube: " << M_cube << endl;
+    cout << "k_cube" << k_cube << endl;
+    cout << "probes: " << probes << endl;
+
     initialize_points_ID_vector(number_of_points, L);
 
     buckets = number_of_points/points_divider;
@@ -132,9 +191,6 @@ int main(int argc, char* argv[]){
 
     }
 
-    //OPEN FILE TO WRITE RESULTS TO
-    open_file(&output_file, output_file_name, fstream::out);
-
     while(continue_execution == 1){
 
         if(strcmp(argv[0], "./lsh") == 0 || strcmp(argv[0], "./cube") == 0){
@@ -142,8 +198,12 @@ int main(int argc, char* argv[]){
             //OPEN FILE TO READ QUERY FILES FROM
             open_file(&query_file, query_file_name, fstream::in);
 
+            //OPEN FILE TO WRITE RESULTS TO
+            open_file(&output_file, output_file_name, fstream::out);
+
             finish = 0;
 
+            //FOR EVERY QUERY POINT
             while(getline(query_file, line)){                       //READ QUERY FILE LINE BY LINE
 
                 vector<int> query_point;
@@ -287,10 +347,21 @@ int main(int argc, char* argv[]){
                 cout << "token is " << token << endl; 
             }
         }
+        else if(strcmp(argv[0], "./cluster") == 0){
+
+            // //OPEN FILE TO WRITE RESULTS TO
+            // open_file(&output_file, output_file_name, fstream::out);
+
+            continue_execution = 0;
+        }
+
+        // read_user_input(query_file_name, &continue_execution);
+        // close_file(&output_file);
+
 
     }
 
-    k_means_plus_plus(9);
+    reverse_assignment_lsh(g_lsh, k_cluster);
 
     close_file(&input_file);
 

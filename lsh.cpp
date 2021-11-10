@@ -210,16 +210,20 @@ vector<int> lsh_range_search(vector<int>& g, int radius, vector<int>& query_poin
 
         //ACCESS TO THE SPECIFIC BUCKET THAT I-TH G FUNCTION INDICATES
         for(int j = 0; j < hashTable_get_bucket_size(i, g[i]); j++){
+            //IF INPUT POINT IS NOT THE SAME AS THE QUERY POINT AND DOES NOT ALREADY EXIST IN POINTS IN RANGE
+            if((query_point[0] != point_vector_get_point(hashTable_get_point(i, g[i], j) - 1)[0])
+        && (!already_exists(points_in_range, hashTable_get_point(i, g[i], j))) 
+        && (!already_assigned(hashTable_get_point(i, g[i], j) - 1))){   //ALSO CHECK THAT IT IS NOT ASSIGNED ALREADY - CLUSTERING
+                //IF DISTANCE OF J-TH POINT IN THIS BUCKET IS IN THE GIVEN RADIUS
+                if((calculate_distance(query_point, point_vector_get_point(hashTable_get_point(i, g[i], j) - 1), 2)) < radius){
+                    //THEN ADD IT'S ID TO POINTS_IN_RANGE VECTOR
+                    points_in_range.push_back(hashTable_get_point(i, g[i], j));
+                    retrieved_items++;
 
-            //IF DISTANCE OF J-TH POINT IN THIS BUCKET IS IN THE GIVEN RADIUS
-            if((calculate_distance(query_point, point_vector_get_point(hashTable_get_point(i, g[i], j) - 1), 2)) < radius){
-                //THEN ADD IT'S ID TO POINTS_IN_RANGE VECTOR
-                points_in_range.push_back(hashTable_get_point(i, g[i], j));
-                retrieved_items++;
+                    if(retrieved_items == max_retrieved_items){
 
-                if(retrieved_items == max_retrieved_items){
-
-                    return points_in_range;
+                        return points_in_range;
+                    }
                 }
             }
         }

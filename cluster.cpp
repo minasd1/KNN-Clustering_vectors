@@ -3,7 +3,7 @@
 #include <chrono>
 #include "cluster.h"
 #include "lloyds_auxiliary.h"
-#include "silhouette.h"
+//#include "silhouette.h"
 #include "vector_ops.h"
 
 using namespace std;
@@ -147,3 +147,60 @@ void lloyds(int number_of_clusters, int num_of_points, fstream& output_file, boo
         }
     }
 }*/
+
+
+void reverse_assignment_lsh(G_Lsh g, int k){
+    
+    k_means_plus_plus(k);                //INITIALIZE K CENTROIDS USING K-MEANS++ ALGORITHM
+    vector<int> centroid;                //HERE CENTROIDS ARE THE QUERY POINTS
+    vector<int> hash_vector;             //THE HASHES PRODUCED BY G THAT LEADS US TO LSH HASHTABLE BUCKETS
+    vector<int> appending_points;
+    vector<pair<vector<int>,int>> points_in_range; //ALL THE POINTS THAT ARE INSIDE THE GIVEN RADIUS FROM EVERY CENTROID
+    int radius = centroids_get_radii();  //SET MINIMUM DISTANCE BETWEEN CENTROIDS DIVIDED BY 2 AS FIRST RADIUS
+    int iterations = 10000;
+    
+    //is_assigned_initialize();           //INITIALIZE ALL INPUT POINTS AS UNASSIGNED
+
+    //FOR EVERY CENTROID
+    for(int i = 0; i < centroids_get_size(); i++){
+        //GET CENTROID'S COORDINANCES BY ACCESSING THE POINT VECTOR DATA
+        centroid = point_vector_get_point(centroids_get_centroid(i) - 1);
+        //GET THE HASHTABLE BUCKETS WHICH THE CURRENT CENTROID SHOULD ACCESS IN EACH HASHTABLE
+        g.hash(centroid, hash_vector, 1);
+        //AND PERFORM RANGE SEARCH - 0 IS THE FIRST INDEX OF AN UNASSIGNED POINT AT START
+        points_in_range.push_back(make_pair(lsh_range_search(hash_vector, radius, centroid), 0));
+        //PARTITION POINTS IN RANGE OF CENTROID i TO ALREADY ASSIGNED AND NOT ASSIGNED
+        partition_assigned_unassigned(points_in_range[i]);
+
+        hash_vector.clear();    //WE MUST CLEAR THE HASH VECTOR AFTER EVERY ITERATION
+    }
+
+    centroids_duplicates_assign_to_nearest_centroid(points_in_range);
+
+    for(int j = 0; j < iterations; j++){
+        radius = radius*2;
+        for(int i = 0; i < centroids_get_size(); i++){
+
+            //GET CENTROID'S COORDINANCES BY ACCESSING THE POINT VECTOR DATA
+            centroid = point_vector_get_point(centroids_get_centroid(i) - 1);
+            //GET THE HASHTABLE BUCKETS WHICH THE CURRENT CENTROID SHOULD ACCESS IN EACH HASHTABLE
+            g.hash(centroid, hash_vector, 1);
+            //AND PERFORM RANGE SEARCH - 0 IS THE FIRST INDEX OF AN UNASSIGNED POINT AT START
+            appending_points = lsh_range_search(hash_vector, radius, centroid);
+
+            points_in_range[i].first.insert(points_in_range[i].first.end(), appending_points.begin(), 
+                                                                                    appending_points.end());
+            //PARTITION POINTS IN RANGE OF CENTROID i TO ALREADY ASSIGNED AND NOT ASSIGNED
+            partition_assigned_unassigned(points_in_range[i]);
+
+
+            appending_points.clear();
+            hash_vector.clear();    //WE MUST CLEAR THE HASH VECTOR AFTER EVERY ITERATION
+
+        }
+
+        centroids_duplicates_assign_to_nearest_centroid(points_in_range);
+    }
+
+
+}
