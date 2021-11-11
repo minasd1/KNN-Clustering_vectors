@@ -1,8 +1,34 @@
 #include <vector>
+#include <algorithm>
 #include "vector_ops.h"
+#include "knn_table_functions.h"
 
 using namespace std;
 
+//RETURNS THE MAXIMUM OF TWO FLOAT NUMBERS
+double max_double(double& a, double& b)
+{
+    return (a > b) ? a : b;
+}
+
+//RECEIVES A POINT AND RETURNS THE SECOND NEAREST CENTROID'S INDEX IN THE TABLE OF CENTROIDS
+int find_second_nearest_centroid(vector<int>& current_point)
+{
+    vector<dist_id_pair> pairs;
+    dist_id_pair current_pair;
+    int i;
+
+    //PUSH BACK ALL THE CENTROIDS' ID - DISTANCE PAIRS IN A TABLE
+    for (i= 0; i < centroids_get_size(); i++) {
+        current_pair.id= i;
+        current_pair.dist= calculate_distance(current_point, point_vector_get_point(get_centroids_id(i)));
+        pairs.push_back(current_pair);
+    }
+    //SORT THAT TABLE IN ASCENDING DISTANCE ORDER
+    sort(pairs.begin(), pairs.end(), compare_distance);
+    //RETURN THE SECOND PAIR'S ID
+    return pairs[1].id;
+}
 
 //RECEIVES A POINT AND RETURNS THE NEAREST CENTROID'S INDEX IN THE TABLE OF CENTROIDS
 int find_nearest_centroid(vector<int>& current_point)
@@ -39,4 +65,18 @@ bool already_in_that_cluster(vector<vector<int>> cluster_table, int index, int i
         }
     }
     return false;
+}
+
+//PRINTS THE CLUSTERS TABLE
+void print_cluster_table (vector<vector<int>>& table)
+{
+    int i, j;
+
+    for (i= 0; i < table.size() ; i++) {
+        cout << "cluster "<< i+1 << " : ";
+        for (j= 0; j < table[i].size(); j++) {
+            cout << table[i][j] << " ";
+        }
+        cout << endl;
+    }
 }

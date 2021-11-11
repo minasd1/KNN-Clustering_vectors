@@ -3,7 +3,7 @@
 #include <chrono>
 #include "cluster.h"
 #include "lloyds_auxiliary.h"
-//#include "silhouette.h"
+#include "silhouette.h"
 #include "vector_ops.h"
 
 using namespace std;
@@ -106,7 +106,7 @@ void lloyds(int number_of_clusters, int num_of_points, fstream& output_file, boo
     auto time_passed = std::chrono::duration_cast<std::chrono::seconds>(stop_time - start_time);
     output_file << "clustering_time: " << time_passed.count() << " seconds" << endl;
     output_file << "Silhouette: ";
-//    print_silhouette(previous_cluster_table, output_file);
+    print_silhouette(previous_cluster_table, output_file);
     if (complete_flag) {
         for(i=0 ; i < number_of_clusters ; i++) {
             output_file << "CLUSTER-" << i+1 << " {size: " << previous_cluster_table[i].size();
