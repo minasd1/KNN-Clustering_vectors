@@ -52,6 +52,7 @@ int get_point_id_value(int index_value, int k);
 void centroids_insert_point(int id);
 int centroids_get_centroid(int index);
 int centroids_get_size();
+vector<int> centroids_get_table();
 int centroids_get_radii();
 float centroids_calculate_min_distance_point(vector<int>& point);
 void centroids_calculate_min_distance_input(vector<float>& points_min_distances);
@@ -61,16 +62,19 @@ int centroids_find_nearest_centroid(vector<int>& centroids, int id);
 void centroids_duplicates_assign_to_nearest_centroid(vector<pair<vector<int>,int>>& points_in_range);
 int get_centroids_id(int i);
 void set_centroids_id(vector<int> v);
+void centroids_get_hashtable_hashes(G_Lsh g, vector<vector<int>>& hashes);
 void centroids_clear();
 void centroids_print_data();
 
 /*-----------------------IS ASSIGNED VECTOR FUNCTIONS-----------------------*/
 void is_assigned_initialize();
+int is_assigned_count_assigned();
 void mark_as_assigned(int index);
 bool already_assigned(int index);
 void partition_assigned_unassigned(pair<vector<int>,int>& points_in_range);
 bool is_assigned_get_value(int index);
 void label_assigned_points(vector<pair<vector<int>,int>>& points_in_range);
+void assigned_print_assigned();
 //void is_assigned_clear();
 
 
@@ -86,7 +90,9 @@ float calculate_partial_sums(vector<float>& min_distances, vector<float>& partia
 bool already_exists(vector<int>& ids, int id);
 void update_points_in_range(pair<vector<int>,int>& points_in_range, int id);
 void search_if_in_range(pair<vector<int>,int>& points_in_range, vector<int>& centroid, int id, int num);
-
+bool points_assigned_in_clusters(vector<int>& points);
+void get_cluster_table(vector<pair<vector<int>,int>>& points_in_range, vector<vector<int>>& cluster_table);
+bool non_zero_coordinates(vector<int>& coordinates);
 
 
 #endif

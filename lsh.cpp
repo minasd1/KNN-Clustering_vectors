@@ -201,6 +201,7 @@ vector<dist_id_pair> find_exact_knn(vector<int> query_point, int k, int num_of_p
 vector<int> lsh_range_search(vector<int>& g, int radius, vector<int>& query_point){
 
     int retrieved_items = 0;
+    int count = 0;
     int max_retrieved_items = 20* hashTable_get_num_of_htables();
 
     vector<int> points_in_range;
@@ -211,7 +212,7 @@ vector<int> lsh_range_search(vector<int>& g, int radius, vector<int>& query_poin
         //ACCESS TO THE SPECIFIC BUCKET THAT I-TH G FUNCTION INDICATES
         for(int j = 0; j < hashTable_get_bucket_size(i, g[i]); j++){
             //IF INPUT POINT IS NOT THE SAME AS THE QUERY POINT AND DOES NOT ALREADY EXIST IN POINTS IN RANGE
-            if((query_point[0] != point_vector_get_point(hashTable_get_point(i, g[i], j) - 1)[0])
+            if((query_point[0] != hashTable_get_point(i, g[i], j))
         && (!already_exists(points_in_range, hashTable_get_point(i, g[i], j))) 
         && (!already_assigned(hashTable_get_point(i, g[i], j) - 1))){   //ALSO CHECK THAT IT IS NOT ASSIGNED ALREADY - CLUSTERING
                 //IF DISTANCE OF J-TH POINT IN THIS BUCKET IS IN THE GIVEN RADIUS
@@ -225,9 +226,27 @@ vector<int> lsh_range_search(vector<int>& g, int radius, vector<int>& query_poin
                         return points_in_range;
                     }
                 }
+                
+            }
+            else{
+                //cout << i << endl;
+                if(query_point[0] == hashTable_get_point(i, g[i], j)){
+                    // cout << "FIRST" << endl; 
+                    // cout << "query point: " << query_point[0] << endl;
+                    // cout << "hashtable point: " << hashTable_get_point(i, g[i], j) << endl;
+                }
+                if(already_exists(points_in_range, hashTable_get_point(i, g[i], j))){
+                    //cout << "SECOND" << endl;
+                }
+                if(already_assigned(hashTable_get_point(i, g[i], j) - 1)){
+                    //cout << "point already assigned is" << hashTable_get_point(i, g[i], j) << endl;
+                    //cout << "point flag is " << already_assigned(hashTable_get_point(i, g[i], j) - 1) << endl;
+                }
+                //cout << endl;
             }
         }
     }
-
+    cout << "retrieved items are " << retrieved_items << endl;
     return points_in_range;
+    //line 214: point_vector_get_point(hashTable_get_point(i, g[i], j) - 1)[0]
 }

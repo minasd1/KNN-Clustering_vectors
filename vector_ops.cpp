@@ -137,6 +137,17 @@ int centroids_get_size(){
     return centroids.size();
 }
 
+vector<int> centroids_get_table(){
+
+    vector<int> centroid_ids;
+    for(int i = 0; i < centroids.size(); i++){
+
+        centroid_ids.push_back(centroids_get_centroid(i));
+    }
+
+    return centroid_ids;
+}
+
 //GET THE MINIMUM DISTANCE BETWEEN CENTROIDS
 //USED AS A STARTING RANGE IN REVERSE ASSIGNMENT
 int centroids_get_radii(){
@@ -159,7 +170,7 @@ int centroids_get_radii(){
         }
     }
 
-    return min_distance/2;
+    return min_distance/2; //min_distance/2
 }
 
 //CALCULATE THE MINIMUM DISTANCE BETWEEN A POINT FROM INPUT AND THE CENTROIDS
@@ -278,6 +289,7 @@ int centroids_find_nearest_centroid(vector<int>& centroids_with_same_id, int id)
     for(int i = 0; i < size; i++){
         // cout << "des kai edo vre malaka ti paizei " << endl;
         // cout << "centroids_with_same_id[i] is " << centroids_with_same_id[i] << endl;
+        // cout << "i is " << i << endl;
 
         current_distance = calculate_distance(point_vector[centroids_with_same_id[i] - 1], point);
         // cout << "mporei na exei paixtei kai edo h malakia " << endl;
@@ -345,6 +357,16 @@ void set_centroids_id(vector<int> v){
     }
 }
 
+void centroids_get_hashtable_hashes(G_Lsh g, vector<vector<int>>& hashes){
+
+    vector<int> hash_vector;
+
+    for(int i = 0; i < centroids.size(); i++){
+        g.hash(point_vector_get_point(centroids[i]-1), hash_vector, 1);
+        hashes.push_back(hash_vector);
+    }
+}
+
 void centroids_clear(){
 
     centroids.clear();
@@ -365,6 +387,19 @@ void is_assigned_initialize(){
     int size = point_vector_get_size();
     is_assigned.resize(size);
 
+}
+
+//COUNT NUMBER OF POINTS THAT ARE ASSIGNED
+int is_assigned_count_assigned(){
+    int assigned_num = 0;
+
+    for(int i = 0; i < is_assigned.size(); i++){
+        if(is_assigned[i] == true){
+            assigned_num++;
+        }
+    }
+    
+    return assigned_num;
 }
 
 //REVERSE ASSIGNMENT - CLUSTERING: IF A POINT IS ASSIGNED TO A CENTROID
@@ -442,6 +477,17 @@ void label_assigned_points(vector<pair<vector<int>,int>>& points_in_range){
             points_in_range[i].second++;
         }
     }
+}
+
+void assigned_print_assigned(){
+    int count = 0;
+    for(int i = 0; i < is_assigned.size(); i++){
+        if(is_assigned[i] == true){
+            cout << i+1 << " point is assigned " << endl;
+            count++;
+        }
+    }
+    cout << "number of assigned points is " << count << endl;
 }
 
 //CALCULATE DOT PRODUCT OF TWO VECTORS
@@ -563,4 +609,35 @@ void search_if_in_range(pair<vector<int>,int>& points_in_range, vector<int>& cen
             // cout << "--------------- kakakaka----------- " << endl;
         }
     }
+}
+
+bool points_assigned_in_clusters(vector<int>& points){
+
+    if(points.size() > 0){
+
+        return true;
+    }
+
+    return false;
+}
+
+void get_cluster_table(vector<pair<vector<int>,int>>& points_in_range, vector<vector<int>>& cluster_table){
+
+    cluster_table.clear();
+
+    for(int i = 0; i < points_in_range.size(); i++){
+
+        cluster_table.push_back(points_in_range[i].first);
+    }
+}
+
+bool non_zero_coordinates(vector<int>& coordinates){
+
+    for(int i = 0; i < coordinates.size(); i++){
+        if(coordinates[i] != 0){
+            return true;
+        }
+    }
+
+    return false;
 }
