@@ -2,6 +2,8 @@
 #define LLOYDS_AUXILIARY_H
 #include <vector>
 
+#include "vector_ops.h"
+
 using namespace std;
 
 double max_double(double& a, double& b);
