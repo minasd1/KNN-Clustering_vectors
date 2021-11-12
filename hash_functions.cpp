@@ -86,7 +86,7 @@ void G_Lsh::hash(const vector<int>& point, vector<int>& hash_vector, bool is_que
 }
 
 //RETURNS A VECTOR THAT CONTAINS THE HASH VALUE OF A GIVEN CENTROID POINT (NOT IN DATASET) FOR EVERY HASH FUNCTION
-void hash_centroid(const vector<double>& centroid_point, vector<int>& hash_vector)
+void G_Lsh::hash_centroid(const vector<double>& centroid_point, vector<int>& hash_vector)
 {
     int i, j, sum, h, id;
     vector<int> hash_values;
