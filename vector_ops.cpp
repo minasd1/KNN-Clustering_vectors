@@ -298,8 +298,8 @@ int centroids_find_nearest_centroid(vector<int>& centroids_with_same_id, int id)
             min_distance = current_distance;
             centroid_with_min_distance = i;
         }
-        
-        
+
+
     }
 
     return centroid_with_min_distance;
@@ -309,7 +309,7 @@ int centroids_find_nearest_centroid(vector<int>& centroids_with_same_id, int id)
 //ASSIGNED A POINT THAT IS ASSIGNED TO MORE THAN ONE CENTROID'S TO IT'S NEAREST CENTROID
 void centroids_duplicates_assign_to_nearest_centroid(vector<pair<vector<int>,int>>& points_in_range){
 
-    vector<int> centroids_with_same_id; 
+    vector<int> centroids_with_same_id;
     //FOR ALL THE CENTROIDS
     for(int i = 0; i < points_in_range.size(); i++){
         //FOR ALL THE POINTS ASSIGNED TO THEM
@@ -336,12 +336,12 @@ void centroids_duplicates_assign_to_nearest_centroid(vector<pair<vector<int>,int
                     // cout << "filage ta rouxa sou gia na xeis ta misa paliomalaka " << endl;
                 }
                 // cout << "paizei na ti gamises kai edo " << endl;
-                
+
             }
             centroids_with_same_id.clear();
         }
     }
-    
+
     label_assigned_points(points_in_range);
 }
 
@@ -398,7 +398,7 @@ int is_assigned_count_assigned(){
             assigned_num++;
         }
     }
-    
+
     return assigned_num;
 }
 
@@ -413,7 +413,7 @@ void mark_as_assigned(int index){
 bool already_assigned(int index){
 
     if(is_assigned[index] == true){
-        
+
         return true;
     }
     else{
@@ -424,21 +424,21 @@ bool already_assigned(int index){
 
 //PARTITION POINTS IN RANGE OF CENTROID TO ASSIGNED AND UNASSIGNED
 void partition_assigned_unassigned(pair<vector<int>,int>& points_in_range){
-    
+
     int temp;
     int left = 0;
     int right = points_in_range.first.size() - 1;
     int partition_pointer = 0;
-    
+
     while(left < right){
-        
+
         //WHILE POINT IN LEFT INDEX IS ALREADY ASSIGNED
         while(already_assigned(points_in_range.first[left] - 1)){
-            left++; 
+            left++;
             if(left == right){
                 points_in_range.second = left + 1;
                 return;
-            }    
+            }
         }
         while(!already_assigned(points_in_range.first[right] - 1)){
             right--;
@@ -521,22 +521,16 @@ vector<int> add_vectors(vector<int>& point1, vector<int>& point2)
 
 //RECEIVES A VECTOR OF SUMS AND THE NUMBER OF VECTORS THAT WERE ADDED
 //RETURNS A VECTOR THAT CONTAINS THE FLOOR OF THE MEAN VALUE FOR EACH COORDINATE
-vector<int> find_mean_vector(vector<int> vector_of_sums, int num_of_vectors)
+vector<int> find_mean_vector(vector<int> vector_of_sums, int num_of_vectors, int& last_known_id)
 {
     int i;
     int mean_value;
     float float_mean_value;
     vector<int> mean_vector;
 
+    mean_vector.push_back(++last_known_id);
     for (i=1; i < vector_of_sums.size() ; i++) {
-        float_mean_value= vector_of_sums[i]/(float)num_of_vectors;
-        //ROUNDING OF THE EXACT MEAN VALUE SO THAT IT WILL BE STORED AS AN INTEGER
-        if (int(float_mean_value*10) %10 >= 5) {
-            mean_value= (float_mean_value+1)/1;
-        }
-        else {
-            mean_value= float_mean_value/1;
-        }
+        mean_value= vector_of_sums[i]/num_of_vectors;
         mean_vector.push_back(mean_value);
     }
     return mean_vector;
@@ -547,9 +541,7 @@ float calculate_distance(vector<int>& point1, const vector<int>& point2, int k)
 {
     float distance = 0.0;
     int sum = 0;
-    // cout << "size of point1 is" << point1.size() << endl;
-    // cout << "size of point2 is" << point2.size() << endl;
-    // cout << "id of point2 is " << point2[0] << endl;
+
     for (int i=1 ; i < point1.size() ; i++) {
         sum+= pow(abs(point1[i]-point2[i]), k);
     }

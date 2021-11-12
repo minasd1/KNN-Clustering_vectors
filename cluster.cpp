@@ -34,7 +34,7 @@ void k_means_plus_plus(int k){
 }
 
 //IMPLEMENTATION OF THE LLOYDS ALGORITHM
-void lloyds(int number_of_clusters, fstream& output_file, bool complete_flag, bool print_results)
+void lloyds(int number_of_clusters, int num_of_points, fstream& output_file, bool complete_flag)
 {
     int i, dimensions, j;
     int nearest_centroid; //NEAREST CENTROID'S INDEX IN THE centroid TABLE
@@ -42,8 +42,7 @@ void lloyds(int number_of_clusters, fstream& output_file, bool complete_flag, bo
     vector<int> current_point;
     vector<vector<int>> new_cluster_table, previous_cluster_table;
     float change_rate; //THE RATE OF POINTS THAT CHANGED CLUSTER TO THE TOTAL NUMBER OF POINTS
-    int num_of_points = point_vector_get_size();
-    int last_known_id= num_of_points;//-1
+    int last_known_id= num_of_points;
     int max_updates= 20;
 
     dimensions= point_vector_get_point(1).size();
@@ -55,100 +54,71 @@ void lloyds(int number_of_clusters, fstream& output_file, bool complete_flag, bo
     //ASSIGN POINTS IN CLUSTERS FOR THE FIRST TIME
     for (i=0 ; i < num_of_points ; i++) { //FOR EVERY POINT
         current_point= point_vector_get_point(i);
-        //if(centroids_get_centroid(i) != point_vector_get_point(i)[0]){
-            nearest_centroid= find_nearest_centroid(current_point);
-            previous_cluster_table[nearest_centroid].push_back(current_point[0]);
-            changes_made++;
-        //}
-        
-        //current_point.clear();
+        nearest_centroid= find_nearest_centroid(current_point);
+        previous_cluster_table[nearest_centroid].push_back(current_point[0]);
+        changes_made++;
     }
     change_rate= float(changes_made)/float(num_of_points); //INITIALLY change_rate WILL BE 1 (100%)
 
     //LOOP UNTIL A SMALL PERCENTAGE OF POINTS CHANGE CLUSTER
     //OR THE MAXIMUM NUMBER OF ITERATIONS HAS BEEN REACHED
-    while (change_rate > 0.1) {//&& max_updates-- > 0
+    while (change_rate > 0.01 && --max_updates > 0) {
         //UPDATE THE CENTROIDS
-        cout << "----------------------BEFORE UPDATE----------------------" << endl;
-        // for(int i = 0; i < num_of_points; i++){
-        //     current_point= point_vector_get_point(i);
-        //     nearest_centroid= find_nearest_centroid(current_point);
-        //     //cout << "point" << i << "nearest centroid is"<< nearest_centroid << endl;
-        // }
-        // cout << "edo mesa eimai" << endl;
         update(previous_cluster_table, last_known_id);
-        // cout << "edo ime vre gavgav" << endl;
+        cout << "Iteration " << 20-max_updates << endl;
 
         //PREPARE THE NEW CLUSTER TABLE FOR THE NEW CENTROIDS ASSIGNMENT
-        int no_changes_needed = 0;
         changes_made= 0;
         new_cluster_table.clear();
         new_cluster_table.resize(number_of_clusters);
-        // cout << "new cluster table size is" << new_cluster_table.size() << endl;
-        // cout << "--------------------------------AFTER UPDATE------------------" << endl;
+
         //MAKE A NEW ASSIGNMENT FOR ALL THE POINTS
         for (i=0 ; i < num_of_points ; i++) { //FOR EVERY POINT
-            // cout << "des edo" << endl;
             current_point= point_vector_get_point(i);
-            // cout << "edo mallon oxi" << endl;
-            //cout <<
             nearest_centroid= find_nearest_centroid(current_point);
-            // cout << "point" << i << "nearest centroid is"<< nearest_centroid << endl;
-            // cout << "kai edo" << endl;
-            // cout << "previous cluster table size is " << previous_cluster_table.size() << endl;
+
             //IF A POINT IS BEING ASSIGNED IN A DIFFERENT CLUSTER THAN THE ONE IT WAS ASSIGNED IN THE PREVIOUS ASSIGNMENT
             if (!already_in_that_cluster(previous_cluster_table, nearest_centroid, current_point[0])) {
                 changes_made++;
-                // cout << "changes made for point " << i << endl;
-            }
-            else{
-                no_changes_needed++;
             }
             new_cluster_table[nearest_centroid].push_back(current_point[0]);
-            //new_cluster_table[nearest_centroid]
         }
         previous_cluster_table= new_cluster_table;
         change_rate= float(changes_made)/float(num_of_points);
-        cout << "number of changes is" << changes_made << endl;
-        cout << "no changes needed is" << no_changes_needed << endl;
-        cout << "number of points is " << num_of_points << endl;
         cout << "Change rate= " << change_rate << endl;
     }
     //WHEN THE CLUSTERS HAVE BEEN DEFINITIVELY FORMED STOP COUNTING TIME
     auto stop_time = std::chrono::high_resolution_clock::now();
 
-    if(print_results == true){
-
-        //PRINT THE RESULTS
-        output_file << "Algorithm: Lloyds" << endl;
-        for (i= 0 ; i < number_of_clusters ; i++) {
+    //PRINT THE RESULTS
+    output_file << "Algorithm: Lloyds" << endl;
+    for (i= 0 ; i < number_of_clusters ; i++) {
+        output_file << "CLUSTER-" << i+1 << " {size: " << previous_cluster_table[i].size();
+        output_file << " centroid: ";
+        current_point= point_vector_get_point(get_centroids_id(i)-1);
+        for (j=1 ; j < dimensions ; j++) {
+            output_file <<  current_point[j]<< " ";
+        }
+        output_file << "}" << endl;
+    }
+    auto time_passed = std::chrono::duration_cast<std::chrono::seconds>(stop_time - start_time);
+    output_file << "clustering_time: " << time_passed.count() << " seconds" << endl;
+    output_file << "Silhouette: ";
+    print_silhouette(previous_cluster_table, output_file);
+    if (complete_flag) {
+        for(i=0 ; i < number_of_clusters ; i++) {
             output_file << "CLUSTER-" << i+1 << " {size: " << previous_cluster_table[i].size();
-            output_file << " centroid: ";
-            current_point= point_vector_get_point(get_centroids_id(i));
+            output_file << " centroid: [";
+            current_point= point_vector_get_point(get_centroids_id(i)-1);
             for (j=1 ; j < dimensions ; j++) {
-                output_file <<  current_point [j]<< " ";
+                output_file << current_point[j] << " ";
+            }
+            output_file << "]";
+            output_file << ", ";
+            for (j= 0; j < previous_cluster_table[i].size(); j++) {
+                output_file << previous_cluster_table[i][j] << " ";
             }
             output_file << "}" << endl;
-        }
-        auto time_passed = std::chrono::duration_cast<std::chrono::seconds>(stop_time - start_time);
-        output_file << "clustering_time: " << time_passed.count() << " seconds" << endl;
-        output_file << "Silhouette: ";
-        //print_silhouette(previous_cluster_table, output_file);
-        if (complete_flag) {
-            for(i=0 ; i < number_of_clusters ; i++) {
-                output_file << "CLUSTER-" << i+1 << " {size: " << previous_cluster_table[i].size();
-                output_file << " centroid: [";
-                current_point= point_vector_get_point(get_centroids_id(i));
-                for (j=1 ; j < dimensions ; j++) {
-                    output_file << current_point[j] << " ";
-                }
-                output_file << "]";
-                output_file << ", ";
-                for (j= 0; j < previous_cluster_table[i].size(); j++) {
-                    output_file << previous_cluster_table[i][j] << " ";
-                }
-                output_file << "}" << endl;
-            }
         }
     }
 }
@@ -234,8 +204,6 @@ void reverse_assignment_lsh(G_Lsh g, int k){
 
     }while(1);
 
-    
-
 
 }
 
@@ -252,7 +220,6 @@ void update(vector<vector<int>>& cluster_table, int& last_known_id)
     vector<int> centroids_cp;
 
     dimensions= point_vector_get_point(1).size();
-    cout << "---------------------------------------DIMENSIONS ARE " << endl;
     //CLEAR THE CENTROIDS VECTOR SO THE NEW CENTROIDS CAN BE PUSHED BACK IN IT
     //centroids_ids.clear();
     centroids_cp = centroids_get_table();
@@ -265,8 +232,8 @@ void update(vector<vector<int>>& cluster_table, int& last_known_id)
             coordinates_sum= add_vectors(current_point, coordinates_sum);
         }
         if(non_zero_coordinates(coordinates_sum)){
-            mean_vector.push_back(++last_known_id);
-            mean_vector= find_mean_vector(coordinates_sum, cluster_table[row].size());
+            //mean_vector.push_back(++last_known_id);
+            mean_vector= find_mean_vector(coordinates_sum, cluster_table[row].size(),last_known_id);
             point_vector_insert_point(mean_vector);
             //centroids_ids.push_back(mean_vector[0]);
             centroids_insert_point(mean_vector[0]);

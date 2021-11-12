@@ -82,7 +82,7 @@ void assigned_print_assigned();
 int calculate_dot_product(const vector <int>& point, vector <int>& v);
 float calculate_distance(vector<int>& point1, const vector<int>& point2, int k=2);
 vector<int> add_vectors(vector<int>& point1, vector<int>& point2);
-vector<int> find_mean_vector(vector<int> vector_of_sums, int num_of_vectors);
+vector<int> find_mean_vector(vector<int> vector_of_sums, int num_of_vectors, int& last_known_id);
 
 /*-------------------------OTHER FUNCTIONS---------------------------------*/
 void create_vector_int(vector<int>& ints, int k, int w, std::default_random_engine& generator);
