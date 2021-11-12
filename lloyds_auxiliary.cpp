@@ -36,34 +36,46 @@ int find_nearest_centroid(vector<int>& current_point)
     int i, nearest_centroid;
     float distance, min_distance;
     vector<int> other_point;
-
+    vector<int> point_coordinates;
+    
     //SET AS MINIMUM DISTANCE THE ONE BETWEEN THE POINT AND THE FIRST CENTROID
-    other_point= point_vector_get_point(get_centroids_id(0));
+    other_point= point_vector_get_point(get_centroids_id(0)-1);
     min_distance= calculate_distance(current_point, other_point);
+    
     nearest_centroid= 0;
     //FOR THE REST OF THE CENTROIDS
+    // cout << "size of centroids is " << centroids_get_size() << endl;
     for (i= 1 ; i < centroids_get_size() ; i++) {
-        other_point= point_vector_get_point(get_centroids_id(i));
+        //cout << "centroids id is" << centroids_get_centroid(i) << endl;
+        //point_vector_get_point(centroids_get_centroid(i) - 1);
+        //for(int i = 0; i < )
+        other_point= point_vector_get_point(get_centroids_id(i)-1);
+        // cout << "before calculating distance" << endl;
         distance= calculate_distance(current_point, other_point);
+        // cout << "and after" << endl;
         if (distance < min_distance) {
             min_distance= distance;
             nearest_centroid= i;
         }
+        //cout << "tsekare mia" << endl;
     }
+    // cout << "geia sou maria" << endl;
     return nearest_centroid;
 }
 
 //RECEIVES THE CLUSTER TABLE, AN INDEX FOR THAT TABLE AND AN ID
 //RETURNS TRUE WHEN THE POINT ,IN WHICH THE ID BELONGS TO,
 //IS ALREADY IN THE CLUSTER WITH THE GIVEN INDEX OF THE GIVEN CLUSTER TABLE
-bool already_in_that_cluster(vector<vector<int>> cluster_table, int index, int id)
+bool already_in_that_cluster(vector<vector<int>>& cluster_table, int index, int id)
 {
     int i;
     for (i= 0; i < cluster_table[index].size() ; i++) {
         if (id == cluster_table[index][i]) {
+            //cout << "----------------------------------------------------------------------------TRUE" << endl;
             return true;
         }
     }
+    //cout << "FALSE" << endl;
     return false;
 }
 

@@ -547,7 +547,9 @@ float calculate_distance(vector<int>& point1, const vector<int>& point2, int k)
 {
     float distance = 0.0;
     int sum = 0;
-
+    // cout << "size of point1 is" << point1.size() << endl;
+    // cout << "size of point2 is" << point2.size() << endl;
+    // cout << "id of point2 is " << point2[0] << endl;
     for (int i=1 ; i < point1.size() ; i++) {
         sum+= pow(abs(point1[i]-point2[i]), k);
     }
