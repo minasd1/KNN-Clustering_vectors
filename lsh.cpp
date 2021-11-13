@@ -230,7 +230,6 @@ vector<int> lsh_range_search(vector<int>& g, int radius, vector<int>& query_poin
             }
         }
     }
-    cout << "retrieved items are " << retrieved_items << endl;
+    
     return points_in_range;
-    //line 214: point_vector_get_point(hashTable_get_point(i, g[i], j) - 1)[0]
 }
