@@ -34,7 +34,7 @@ void k_means_plus_plus(int k){
 }
 
 //IMPLEMENTATION OF THE LLOYDS ALGORITHM
-void lloyds(int number_of_clusters, int num_of_points, fstream& output_file, bool complete_flag)
+void lloyds(int number_of_clusters, fstream& output_file, bool complete_flag)
 {
     int i, dimensions, j;
     int nearest_centroid; //NEAREST CENTROID'S INDEX IN THE centroid TABLE
@@ -42,8 +42,9 @@ void lloyds(int number_of_clusters, int num_of_points, fstream& output_file, boo
     vector<int> current_point;
     vector<vector<int>> new_cluster_table, previous_cluster_table;
     float change_rate; //THE RATE OF POINTS THAT CHANGED CLUSTER TO THE TOTAL NUMBER OF POINTS
+    int num_of_points = point_vector_get_size();
     int last_known_id= num_of_points;
-    int max_updates= 20;
+
 
     dimensions= point_vector_get_point(1).size();
     previous_cluster_table.resize(number_of_clusters);
@@ -62,10 +63,9 @@ void lloyds(int number_of_clusters, int num_of_points, fstream& output_file, boo
 
     //LOOP UNTIL A SMALL PERCENTAGE OF POINTS CHANGE CLUSTER
     //OR THE MAXIMUM NUMBER OF ITERATIONS HAS BEEN REACHED
-    while (change_rate > 0.01 && --max_updates > 0) {
+    while (change_rate > 0.01) {
         //UPDATE THE CENTROIDS
         update(previous_cluster_table, last_known_id);
-        cout << "Iteration " << 20-max_updates << endl;
 
         //PREPARE THE NEW CLUSTER TABLE FOR THE NEW CENTROIDS ASSIGNMENT
         changes_made= 0;
@@ -121,6 +121,66 @@ void lloyds(int number_of_clusters, int num_of_points, fstream& output_file, boo
             output_file << "}" << endl;
         }
     }
+    
+    
+}
+
+void reverse_assignment_lloyds(vector<vector<int>>& cluster_table, int number_of_clusters, int last_id){
+
+    int i, dimensions, j;
+    int nearest_centroid; //NEAREST CENTROID'S INDEX IN THE centroid TABLE
+    int changes_made= 0; //HOW MANY POINTS CHANGED CLUSTER IN A NEW ASSIGNMENT
+    vector<int> current_point;
+    vector<vector<int>> new_cluster_table;   //, previous_cluster_table;
+    float change_rate; //THE RATE OF POINTS THAT CHANGED CLUSTER TO THE TOTAL NUMBER OF POINTS
+    int num_of_points = point_vector_get_size();
+    //int last_known_id= num_of_points;
+    int last_known_id = last_id;
+
+    dimensions= point_vector_get_point(1).size();
+    //previous_cluster_table.resize(number_of_clusters);
+    
+    //INITIALIZE THE CENDROID POINTS
+    //k_means_plus_plus(number_of_clusters);
+    //ASSIGN POINTS IN CLUSTERS FOR THE FIRST TIME
+    // for (i=0 ; i < num_of_points ; i++) { //FOR EVERY POINT
+    //     current_point= point_vector_get_point(i);
+    //     nearest_centroid= find_nearest_centroid(current_point);
+    //     previous_cluster_table[nearest_centroid].push_back(current_point[0]);
+    //     changes_made++;
+    // }
+    // change_rate= float(changes_made)/float(num_of_points); //INITIALLY change_rate WILL BE 1 (100%)
+    change_rate = 1.0;
+
+    //LOOP UNTIL A SMALL PERCENTAGE OF POINTS CHANGE CLUSTER
+    while (change_rate > 0.01) {
+        //UPDATE THE CENTROIDS
+        update(cluster_table, last_known_id);
+
+        //PREPARE THE NEW CLUSTER TABLE FOR THE NEW CENTROIDS ASSIGNMENT
+        changes_made= 0;
+        new_cluster_table.clear();
+        new_cluster_table.resize(number_of_clusters);
+
+        //MAKE A NEW ASSIGNMENT FOR ALL THE POINTS
+        for (i=0 ; i < num_of_points ; i++) { //FOR EVERY POINT
+            current_point= point_vector_get_point(i);
+            nearest_centroid= find_nearest_centroid(current_point);
+
+            if(!already_assigned(current_point[0])){
+                //IF A POINT IS BEING ASSIGNED IN A DIFFERENT CLUSTER THAN THE ONE IT WAS ASSIGNED IN THE PREVIOUS ASSIGNMENT
+                if (!already_in_that_cluster(cluster_table, nearest_centroid, current_point[0])) {
+                    changes_made++;
+                }
+                new_cluster_table[nearest_centroid].push_back(current_point[0]);
+            }
+            
+        }
+        cluster_table= new_cluster_table;
+        change_rate= float(changes_made)/float(num_of_points);
+        cout << "Change rate= " << change_rate << endl;
+    }
+    
 }
 
 
@@ -190,6 +250,8 @@ void reverse_assignment_lsh(G_Lsh g, int k){
         //IF A POINT HAS BEEN ASSIGNED TO MORE THAN ONE CENTROIDS, ASSIGN IT TO THE NEAREST CENTROID
         centroids_duplicates_assign_to_nearest_centroid(points_in_range);
         new_points_assigned = is_assigned_count_assigned();
+
+        //IF THERE ARE NO ANY NEW ASSIGNMENTS TO THE CLUSTERS
         if(new_points_assigned == previous_points_assigned){
             break;
         }
@@ -204,7 +266,8 @@ void reverse_assignment_lsh(G_Lsh g, int k){
 
     }while(1);
 
-
+    //ASSIGN THE REST OF THE POINTS THAT HAVE NOT BEEN ASSIGNED TO CLUSTERS USING LLOYD'S ALGORITHM
+    reverse_assignment_lloyds(cluster_table, k, last_id);
 }
 
 

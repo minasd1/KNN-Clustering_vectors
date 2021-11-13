@@ -615,6 +615,7 @@ bool points_assigned_in_clusters(vector<int>& points){
     return false;
 }
 
+//UPDATE CLUSTER TABLE WITH THE IDS OF THE POINTS IN EACH CLUSTER
 void get_cluster_table(vector<pair<vector<int>,int>>& points_in_range, vector<vector<int>>& cluster_table){
 
     cluster_table.clear();

@@ -362,9 +362,10 @@ int main(int argc, char* argv[]){
     }
 
     cout << "k_cluster is " << k_cluster << endl;
-    //reverse_assignment_lsh(g_lsh, k_cluster);
+    
     open_file(&output_file, output_file_name, fstream::out);
-    lloyds(20, output_file, false, true);
+    //lloyds(20, output_file, false);
+    reverse_assignment_lsh(g_lsh, k_cluster);
     close_file(&output_file);
 
 
