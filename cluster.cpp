@@ -186,9 +186,8 @@ void reverse_assignment_lloyds(vector<vector<int>>& cluster_table, int number_of
 
 void reverse_assignment_lsh(G_Lsh g, int k){
 
-    k_means_plus_plus(k);                //INITIALIZE K CENTROIDS USING K-MEANS++ ALGORITHM
     vector<int> centroid;                //HERE CENTROIDS ARE THE QUERY POINTS
-    vector<int> hash_vector;             //THE HASHES PRODUCED BY G THAT LEADS US TO LSH HASHTABLE BUCKETS
+    //vector<int> hash_vector;             //THE HASHES PRODUCED BY G THAT LEADS US TO LSH HASHTABLE BUCKETS
     vector<int> appending_points;
     vector<pair<vector<int>,int>> points_in_range; //ALL THE POINTS THAT ARE INSIDE THE GIVEN RADIUS FROM EVERY CENTROID
     vector<vector<int>> cluster_table;
@@ -199,6 +198,8 @@ void reverse_assignment_lsh(G_Lsh g, int k){
     int new_points_assigned = 0;
     int previous_points_assigned = 0;
 
+    k_means_plus_plus(k);                //INITIALIZE K CENTROIDS USING K-MEANS++ ALGORITHM
+
     do{
 
         //GET EVERY CENTROID'S HASHTABLE BUCKET HASHES
@@ -207,7 +208,7 @@ void reverse_assignment_lsh(G_Lsh g, int k){
         for(int i = 0; i < centroids_get_size(); i++){
             //GET CENTROID'S COORDINANCES BY ACCESSING THE POINT VECTOR DATA
             centroid = point_vector_get_point(centroids_get_centroid(i) - 1);
-            //AND PERFORM RANGE SEARCH
+            //AND PERFORM LSH RANGE SEARCH
             if(first_iteration){ //0 IS THE FIRST INDEX OF AN UNASSIGNED POINT AT START - ALL POINTS UNASSIGNED
                 points_in_range.push_back(make_pair(lsh_range_search(hashes[i], radius, centroid), 0));
             }
@@ -221,7 +222,7 @@ void reverse_assignment_lsh(G_Lsh g, int k){
             //PARTITION POINTS IN RANGE OF CENTROID i TO ALREADY ASSIGNED AND NOT ASSIGNED
             partition_assigned_unassigned(points_in_range[i]);
 
-            hash_vector.clear();    //WE MUST CLEAR THE HASH VECTOR AFTER EVERY ITERATION
+            //hash_vector.clear();    //WE MUST CLEAR THE HASH VECTOR AFTER EVERY ITERATION
         }
 
         //IF A POINT HAS BEEN ASSIGNED TO MORE THAN ONE CENTROIDS, ASSIGN IT TO THE NEAREST CENTROID
@@ -243,7 +244,7 @@ void reverse_assignment_lsh(G_Lsh g, int k){
 
 
             appending_points.clear();
-            hash_vector.clear();    //WE MUST CLEAR THE HASH VECTOR AFTER EVERY ITERATION
+            //hash_vector.clear();    //WE MUST CLEAR THE HASH VECTOR AFTER EVERY ITERATION
 
         }
 
@@ -266,6 +267,99 @@ void reverse_assignment_lsh(G_Lsh g, int k){
 
     }while(1);
 
+    //ASSIGN THE REST OF THE POINTS THAT HAVE NOT BEEN ASSIGNED TO CLUSTERS USING LLOYD'S ALGORITHM
+    reverse_assignment_lloyds(cluster_table, k, last_id);
+}
+
+void reverse_assignment_cube(G_Hypercube g, int k, int probes){
+    
+    vector<int> centroid;                //HERE CENTROIDS ARE THE QUERY POINTS
+    vector<int> appending_points;
+    vector<pair<vector<int>,int>> points_in_range; //ALL THE POINTS THAT ARE INSIDE THE GIVEN RADIUS FROM EVERY CENTROID
+    vector<vector<int>> cluster_table;
+    vector<int> hashes;
+    int radius = centroids_get_radii();  //SET MINIMUM DISTANCE BETWEEN CENTROIDS DIVIDED BY 2 AS FIRST RADIUS
+    int last_id = point_vector_get_size();
+    bool first_iteration = true;
+    int new_points_assigned = 0;
+    int previous_points_assigned = 0;
+    int dimensions = point_vector_get_point(0).size();
+
+    k_means_plus_plus(k);                //INITIALIZE K CENTROIDS USING K-MEANS++ ALGORITHM
+
+    do{
+        //GET EVERY CENTROID'S HYPERCUBE BUCKET HASH
+        centroids_get_hypercube_hashes(g, hashes);
+
+        //FOR EVERY CENTROID
+        for(int i = 0; i < centroids_get_size(); i++){
+            //GET CENTROID'S COORDINANCES BY ACCESSING THE POINT VECTOR DATA
+            centroid = point_vector_get_point(centroids_get_centroid(i) - 1);
+            //AND PERFORM HYPERCUBE RANGE SEARCH
+            if(first_iteration){ //0 IS THE FIRST INDEX OF AN UNASSIGNED POINT AT START - ALL POINTS UNASSIGNED
+                points_in_range.push_back(make_pair(cube_range_search(hashes[i], radius, probes, dimensions, centroid), 0));
+            }
+            else{
+                appending_points = cube_range_search(hashes[i], radius, probes, dimensions, centroid);
+                points_in_range[i].first.insert(points_in_range[i].first.end(), appending_points.begin(),
+                                                                                    appending_points.end());
+                appending_points.clear();
+            }
+
+            //PARTITION POINTS IN RANGE OF CENTROID i TO ALREADY ASSIGNED AND NOT ASSIGNED
+            partition_assigned_unassigned(points_in_range[i]);
+
+        }
+        
+        //IF A POINT HAS BEEN ASSIGNED TO MORE THAN ONE CENTROIDS, ASSIGN IT TO THE NEAREST CENTROID
+        centroids_duplicates_assign_to_nearest_centroid(points_in_range);
+
+        radius = radius*2;
+
+        for(int i = 0; i < centroids_get_size(); i++){
+            //GET CENTROID'S COORDINANCES BY ACCESSING THE POINT VECTOR DATA
+            centroid = point_vector_get_point(centroids_get_centroid(i) - 1);
+            //AND PERFORM RANGE SEARCH - 0 IS THE FIRST INDEX OF AN UNASSIGNED POINT AT START
+            appending_points = cube_range_search(hashes[i], radius, probes, dimensions, centroid);
+
+            points_in_range[i].first.insert(points_in_range[i].first.end(), appending_points.begin(),
+                                                                                    appending_points.end());
+            //PARTITION POINTS IN RANGE OF CENTROID i TO ALREADY ASSIGNED AND NOT ASSIGNED
+            partition_assigned_unassigned(points_in_range[i]);
+
+            appending_points.clear();
+        }
+
+        //IF A POINT HAS BEEN ASSIGNED TO MORE THAN ONE CENTROIDS, ASSIGN IT TO THE NEAREST CENTROID
+        centroids_duplicates_assign_to_nearest_centroid(points_in_range);
+        new_points_assigned = is_assigned_count_assigned();
+
+        //IF THERE ARE NO ANY NEW ASSIGNMENTS TO THE CLUSTERS
+        if(new_points_assigned == previous_points_assigned){
+            break;
+        }
+
+        previous_points_assigned = new_points_assigned;
+        get_cluster_table(points_in_range, cluster_table);
+        //UPDATE THE CENTROIDS
+        update(cluster_table, last_id);
+
+        first_iteration = false;
+
+    }while(1);
+
+    // for(int i = 0; i < points_in_range.size(); i++){
+    //     cout << "Cluster " << i << ":" << endl;
+    //     cout << "cluster size is " << points_in_range[i].first.size() << endl;
+    //     for(int j = 0; j < points_in_range[i].first.size(); j++){
+    //         cout << points_in_range[i].first[j] << " ";
+    //     }
+    //     cout << endl;
+    //     cout << "pointer of unassigned is " << points_in_range[i].second << endl;
+    // }
+    
+    // cout << "assigned points are" << is_assigned_count_assigned() << endl;
+    // cout << "probes are" << probes << endl;
     //ASSIGN THE REST OF THE POINTS THAT HAVE NOT BEEN ASSIGNED TO CLUSTERS USING LLOYD'S ALGORITHM
     reverse_assignment_lloyds(cluster_table, k, last_id);
 }

@@ -166,7 +166,7 @@ int main(int argc, char* argv[]){
     G_Hypercube g_cube(dimensions, generator, window, k_cube);
 
     if(strcmp(argv[0], "./lsh") == 0 || strcmp(argv[0], "./cluster") == 0){
-
+        cout << "HASHTABLE INITIALIZED" << endl;
         //INITIALIZE L HASHTABLES WITH HASHTABLESIZE BUCKETS AND ZERO POINTS IN EACH BUCKET
         hashTable_initialization(L, buckets);
 
@@ -178,8 +178,9 @@ int main(int argc, char* argv[]){
 
         hash_vector.clear();
     }
-    else if(strcmp(argv[0], "./cube") == 0){
-
+    
+    if(strcmp(argv[0], "./cube") == 0 || strcmp(argv[0], "./cluster") == 0){
+        cout << "HYPERCUBE IS INITIALIZED" << endl;
         //INITIALIZE A HYPERCUBE WITH 2^D' BUCKETS AND ZERO POINTS IN EACH BUCKET
         hyperCube_initialization(pow(2, k_cube));
 
@@ -323,30 +324,30 @@ int main(int argc, char* argv[]){
             close_file(&output_file);
             close_file(&query_file);
         }
-        else if(strcmp(argv[0], "./cube") == 0){
+        // else if(strcmp(argv[0], "./cube") == 0){
 
-            //OPEN CLUSTER CONFIGURATION FILE
-            open_file(&config_file, argv[3], fstream::in);
+        //     //OPEN CLUSTER CONFIGURATION FILE
+        //     open_file(&config_file, argv[3], fstream::in);
 
-            finish = 0;
+        //     finish = 0;
 
-            while(getline(config_file, line)){
+        //     while(getline(config_file, line)){
 
-                start = 0;
-                while(start < line.size()){
-                    finish = line.find_first_of(' ', start);
-                }
+        //         start = 0;
+        //         while(start < line.size()){
+        //             finish = line.find_first_of(' ', start);
+        //         }
 
-                if(finish == string::npos){
+        //         if(finish == string::npos){
 
-                    finish = line.size();
-                }
+        //             finish = line.size();
+        //         }
 
-                token = line.substr(start, finish - start);
-                start = finish + 1;
-                cout << "token is " << token << endl; 
-            }
-        }
+        //         token = line.substr(start, finish - start);
+        //         start = finish + 1;
+        //         cout << "token is " << token << endl; 
+        //     }
+        // }
         else if(strcmp(argv[0], "./cluster") == 0){
 
             // //OPEN FILE TO WRITE RESULTS TO
@@ -365,7 +366,10 @@ int main(int argc, char* argv[]){
     
     open_file(&output_file, output_file_name, fstream::out);
     //lloyds(20, output_file, false);
-    reverse_assignment_lsh(g_lsh, k_cluster);
+    //reverse_assignment_lsh(g_lsh, k_cluster);
+    cout << "got in here" << endl;
+    reverse_assignment_cube(g_cube, k_cluster, probes);
+    cout << "but not here" << endl;
     close_file(&output_file);
 
 

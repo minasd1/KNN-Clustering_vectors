@@ -12,6 +12,7 @@
 
 #include "hash_functions.h"
 #include "lsh.h"
+#include "cube.h"
 
 using namespace std;
 
@@ -63,6 +64,7 @@ void centroids_duplicates_assign_to_nearest_centroid(vector<pair<vector<int>,int
 int get_centroids_id(int i);
 void set_centroids_id(vector<int> v);
 void centroids_get_hashtable_hashes(G_Lsh g, vector<vector<int>>& hashes);
+void centroids_get_hypercube_hashes(G_Hypercube g, vector<int>& hashes);
 void centroids_clear();
 void centroids_print_data();
 

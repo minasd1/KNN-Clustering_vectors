@@ -357,6 +357,7 @@ void set_centroids_id(vector<int> v){
     }
 }
 
+//GET EVERY CENTROID'S HASHTABLE BUCKET HASHES
 void centroids_get_hashtable_hashes(G_Lsh g, vector<vector<int>>& hashes){
 
     vector<int> hash_vector;
@@ -364,6 +365,17 @@ void centroids_get_hashtable_hashes(G_Lsh g, vector<vector<int>>& hashes){
     for(int i = 0; i < centroids.size(); i++){
         g.hash(point_vector_get_point(centroids[i]-1), hash_vector, 1);
         hashes.push_back(hash_vector);
+    }
+}
+
+//GET EVERY CENTROID'S HYPERCUBE BUCKET HASH
+void centroids_get_hypercube_hashes(G_Hypercube g, vector<int>& hashes){
+
+    unsigned int hash_value;
+
+    for(int i = 0; i < centroids.size(); i++){
+        g.hash(point_vector_get_point(centroids[i]-1), hash_value, 1);
+        hashes.push_back(hash_value);
     }
 }
 

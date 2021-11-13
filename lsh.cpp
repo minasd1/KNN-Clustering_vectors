@@ -228,22 +228,6 @@ vector<int> lsh_range_search(vector<int>& g, int radius, vector<int>& query_poin
                 }
                 
             }
-            else{
-                //cout << i << endl;
-                if(query_point[0] == hashTable_get_point(i, g[i], j)){
-                    // cout << "FIRST" << endl; 
-                    // cout << "query point: " << query_point[0] << endl;
-                    // cout << "hashtable point: " << hashTable_get_point(i, g[i], j) << endl;
-                }
-                if(already_exists(points_in_range, hashTable_get_point(i, g[i], j))){
-                    //cout << "SECOND" << endl;
-                }
-                if(already_assigned(hashTable_get_point(i, g[i], j) - 1)){
-                    //cout << "point already assigned is" << hashTable_get_point(i, g[i], j) << endl;
-                    //cout << "point flag is " << already_assigned(hashTable_get_point(i, g[i], j) - 1) << endl;
-                }
-                //cout << endl;
-            }
         }
     }
     cout << "retrieved items are " << retrieved_items << endl;
