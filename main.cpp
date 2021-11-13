@@ -41,7 +41,8 @@ int main(int argc, char* argv[]){
     fstream output_file;            //FILE TO WRITE OUTPUT TO
     int point_id;
     string line;
-    string input_file_name, query_file_name, output_file_name, config_file_name, method;
+    string input_file_name, query_file_name, output_file_name, config_file_name;
+    string method;
     int start;
     int finish = 0;
     bool first_iteration = true;
@@ -108,6 +109,7 @@ int main(int argc, char* argv[]){
 
     initialize_points_ID_vector(number_of_points, L);
 
+    //NUMBER OF BUCKETS IN EACH HASHTABLE
     buckets = number_of_points/points_divider;
 
     //INITIALIZE G FUNCTION THAT LEADS US TO HASHTABLE BUCKETS
@@ -116,8 +118,8 @@ int main(int argc, char* argv[]){
     //INITIALIZE G FUNCTION THAT LEADS US TO HYPERCUBE BUCKETS
     G_Hypercube g_cube(dimensions, generator, window, k_cube);
 
-    if(strcmp(argv[0], "./lsh") == 0 || strcmp(argv[0], "./cluster") == 0){
-        cout << "HASHTABLE INITIALIZED" << endl;
+    if(strcmp(argv[0], "./lsh") == 0 || ((strcmp(argv[0], "./cluster") == 0) && (method == "lsh"))){
+
         //INITIALIZE L HASHTABLES WITH HASHTABLESIZE BUCKETS AND ZERO POINTS IN EACH BUCKET
         hashTable_initialization(L, buckets);
 
@@ -130,8 +132,8 @@ int main(int argc, char* argv[]){
         hash_vector.clear();
     }
     
-    if(strcmp(argv[0], "./cube") == 0 || strcmp(argv[0], "./cluster") == 0){
-        cout << "HYPERCUBE IS INITIALIZED" << endl;
+    if(strcmp(argv[0], "./cube") == 0 || ((strcmp(argv[0], "./cluster") == 0) && (method == "hypercube"))){
+        
         //INITIALIZE A HYPERCUBE WITH 2^D' BUCKETS AND ZERO POINTS IN EACH BUCKET
         hyperCube_initialization(pow(2, k_cube));
 
@@ -316,7 +318,7 @@ int main(int argc, char* argv[]){
     open_file(&output_file, output_file_name, fstream::out);
     //lloyds(20, output_file, false);
     //reverse_assignment_lsh(g_lsh, k_cluster);
-    //reverse_assignment_cube(g_cube, k_cluster, probes);
+    reverse_assignment_cube(g_cube, k_cluster, probes);
     close_file(&output_file);
 
 

@@ -134,22 +134,9 @@ void reverse_assignment_lloyds(vector<vector<int>>& cluster_table, int number_of
     vector<vector<int>> new_cluster_table;   //, previous_cluster_table;
     float change_rate; //THE RATE OF POINTS THAT CHANGED CLUSTER TO THE TOTAL NUMBER OF POINTS
     int num_of_points = point_vector_get_size();
-    //int last_known_id= num_of_points;
     int last_known_id = last_id;
 
     dimensions= point_vector_get_point(1).size();
-    //previous_cluster_table.resize(number_of_clusters);
-    
-    //INITIALIZE THE CENDROID POINTS
-    //k_means_plus_plus(number_of_clusters);
-    //ASSIGN POINTS IN CLUSTERS FOR THE FIRST TIME
-    // for (i=0 ; i < num_of_points ; i++) { //FOR EVERY POINT
-    //     current_point= point_vector_get_point(i);
-    //     nearest_centroid= find_nearest_centroid(current_point);
-    //     previous_cluster_table[nearest_centroid].push_back(current_point[0]);
-    //     changes_made++;
-    // }
-    // change_rate= float(changes_made)/float(num_of_points); //INITIALLY change_rate WILL BE 1 (100%)
     change_rate = 1.0;
 
     //LOOP UNTIL A SMALL PERCENTAGE OF POINTS CHANGE CLUSTER
