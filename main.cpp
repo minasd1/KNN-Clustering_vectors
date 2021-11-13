@@ -17,6 +17,7 @@
 #include "hypercube.h"
 #include "cube.h"
 #include "cluster.h"
+#include "conf_file.h"
 
 
 using namespace std;
@@ -102,58 +103,8 @@ int main(int argc, char* argv[]){
 
     if(strcmp(argv[0], "./cluster") == 0){
         
-        //OPEN CLUSTER CONFIGURATION FILE
-        open_file(&config_file, config_file_name, fstream::in);
-        
-        finish = 0;
-        int count = 0;
-
-        while(getline(config_file, line)){
-            
-            start = 0;
-            while(start < line.size()){
-                
-                start = line.find_first_of(' ', start);
-                
-                finish = line.size();
-                
-                    
-                token = line.substr(start, finish - start);
-                if(count == 0){
-                    k_cluster = stoi(token);
-                }
-                else if(count == 1){
-                    L = stoi(token);
-                }
-                else if(count == 2){
-                    k = stoi(token);
-                }
-                else if(count == 3){
-                    M_cube = stoi(token);
-                }
-                else if(count == 4){
-                    k_cube = stoi(token);
-                }
-                else if(count == 5){
-                    probes = stoi(token);
-                }
-
-                start = finish;
-                
-                count++;
-            }
-
-             
-        }
-
-        close_file(&config_file);
+        read_configuration_file(config_file, config_file_name, k_cluster, L, k, M_cube, k_cube, probes);
     }
-    cout << "k_cluster: " << k_cluster << endl;
-    cout << "L: " << L << endl;
-    cout << "k: " << k << endl;
-    cout << "M_cube: " << M_cube << endl;
-    cout << "k_cube" << k_cube << endl;
-    cout << "probes: " << probes << endl;
 
     initialize_points_ID_vector(number_of_points, L);
 
@@ -361,15 +312,11 @@ int main(int argc, char* argv[]){
 
 
     }
-
-    cout << "k_cluster is " << k_cluster << endl;
     
     open_file(&output_file, output_file_name, fstream::out);
     //lloyds(20, output_file, false);
     //reverse_assignment_lsh(g_lsh, k_cluster);
-    cout << "got in here" << endl;
-    reverse_assignment_cube(g_cube, k_cluster, probes);
-    cout << "but not here" << endl;
+    //reverse_assignment_cube(g_cube, k_cluster, probes);
     close_file(&output_file);
 
 

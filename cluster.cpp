@@ -165,9 +165,9 @@ void reverse_assignment_lloyds(vector<vector<int>>& cluster_table, int number_of
         //MAKE A NEW ASSIGNMENT FOR ALL THE POINTS
         for (i=0 ; i < num_of_points ; i++) { //FOR EVERY POINT
             current_point= point_vector_get_point(i);
-            nearest_centroid= find_nearest_centroid(current_point);
-
             if(!already_assigned(current_point[0])){
+                nearest_centroid= find_nearest_centroid(current_point);
+
                 //IF A POINT IS BEING ASSIGNED IN A DIFFERENT CLUSTER THAN THE ONE IT WAS ASSIGNED IN THE PREVIOUS ASSIGNMENT
                 if (!already_in_that_cluster(cluster_table, nearest_centroid, current_point[0])) {
                     changes_made++;
