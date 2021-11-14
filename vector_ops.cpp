@@ -283,16 +283,12 @@ int centroids_find_nearest_centroid(vector<int>& centroids_with_same_id, int id)
     float min_distance = numeric_limits<float>::max();
     float current_distance;
     int centroid_with_min_distance; //INDEX OF CENTROID WITH MIN DISTANCE
-    // cout << "gia tsekare " << endl;
     int size = centroids_with_same_id.size();
-    // cout << "gia des mia kai edo " << endl;
+    
     for(int i = 0; i < size; i++){
-        // cout << "des kai edo vre malaka ti paizei " << endl;
-        // cout << "centroids_with_same_id[i] is " << centroids_with_same_id[i] << endl;
-        // cout << "i is " << i << endl;
-
+        
         current_distance = calculate_distance(point_vector[centroids_with_same_id[i] - 1], point);
-        // cout << "mporei na exei paixtei kai edo h malakia " << endl;
+        
         if(current_distance < min_distance){
 
             min_distance = current_distance;
@@ -306,7 +302,7 @@ int centroids_find_nearest_centroid(vector<int>& centroids_with_same_id, int id)
 
 }
 
-//ASSIGNED A POINT THAT IS ASSIGNED TO MORE THAN ONE CENTROID'S TO IT'S NEAREST CENTROID
+//ASSIGN A POINT THAT IS ASSIGNED TO MORE THAN ONE CENTROID'S TO IT'S NEAREST CENTROID
 void centroids_duplicates_assign_to_nearest_centroid(vector<pair<vector<int>,int>>& points_in_range){
 
     vector<int> centroids_with_same_id;
@@ -314,45 +310,43 @@ void centroids_duplicates_assign_to_nearest_centroid(vector<pair<vector<int>,int
     //FOR ALL THE CENTROIDS
     for(int i = 0; i < points_in_range.size(); i++){
         //FOR ALL THE POINTS ASSIGNED TO THEM
-        for(int k = 0; k < points_in_range[i].first.size(); k++){//k = points_in_range[i].second
-            // cout << "k is " << k << endl;
-            // cout << "and size is " << points_in_range[i].first.size() << endl;
+        for(int k = points_in_range[i].second; k < points_in_range[i].first.size(); k++){
+            
             centroids_with_same_id.push_back(centroids_get_centroid(i));
             //FOR ALL THE OTHER CENTROIDS
             for(int j = i+1; j < points_in_range.size(); j++){
                 //SEARCH IF THERE IS ANOTHER CENTROID THAT HAS THE SAME ID
-                // cout << "check in here " << endl;
                 search_if_in_range(points_in_range[j], centroids_with_same_id, points_in_range[i].first[k], j);
-                // cout << "and maybe here " << endl;
+                
             }   //IF THERE ARE MORE THAN ONE CENTROIDS THAT HAVE THE SAME ID
             if(centroids_with_same_id.size() >= 2){
                 //FIND THE NEAREST CENTROID TO THE POINT WITH THIS ID
-                // cout << "parapapam perom perom " << endl;
                 nearest_centroid = centroids_find_nearest_centroid(centroids_with_same_id, points_in_range[i].first[k]);
-                // cout << "maybe ------------------------ check here " << endl;
+                
                 for(int centroid = 0; centroid < centroids_with_same_id.size(); centroid++){
-                    // cout << "also check here " << endl;
+                    
                     if(centroid != nearest_centroid){
                         //REMOVE POINT ID FROM ALL THE CENTROID THAT DO NOT HAVE MINIMUM DISTANCE WITH IT
                         update_points_in_range(points_in_range[centroid], points_in_range[i].first[k]);
                     }
                     
-                    // cout << "filage ta rouxa sou gia na xeis ta misa paliomalaka " << endl;
+    
                 }
-                // cout << "paizei na ti gamises kai edo " << endl;
-
+                
             }
             centroids_with_same_id.clear();
         }
     }
-
+    //LABEL ALL THE ASSIGNED POINTS AS ASSIGNED
     label_assigned_points(points_in_range);
 }
 
+//GET A CENTROID'S ID
 int get_centroids_id(int i){
     return centroids[i];
 }
 
+//SET CENTROIDS IDS
 void set_centroids_id(vector<int> v){
     int i;
 
@@ -383,6 +377,7 @@ void centroids_get_hypercube_hashes(G_Hypercube g, vector<int>& hashes){
     }
 }
 
+//CLEAR CENTROIDS DATA STRUCTURE
 void centroids_clear(){
 
     centroids.clear();
@@ -405,6 +400,7 @@ void is_assigned_initialize(){
 
 }
 
+//GET SIZE OF IS_ASSIGNED DATA STRUCTURE (IT MUST BE EQUAL WITH NUM_OF_POINTS)
 int is_assigned_get_size(){
 
     return is_assigned.size();
@@ -495,6 +491,7 @@ void partition_assigned_unassigned(pair<vector<int>,int>& points_in_range){
 
 }
 
+//CHECK IF A POINT IS ASSIGNED OR NOT
 bool is_assigned_get_value(int index){
 
     return is_assigned[index];
@@ -513,6 +510,8 @@ void label_assigned_points(vector<pair<vector<int>,int>>& points_in_range){
     }
 }
 
+//PRINT POINTS DATA REGARDING TO WHETHER THEY ARE ASSIGNED OR NOT
+//USED FOR CHECKING PURPOSES
 void assigned_print_assigned(){
     int count = 0;
     for(int i = 0; i < is_assigned.size(); i++){
@@ -619,22 +618,19 @@ bool already_exists(vector<int>& ids, int id){
 //REMOVE POINT ID FROM ALL THE CLUSTERS OF CENTROID'S THAT DO NOT HAVE MINIMUM DISTANCE WITH IT
 void update_points_in_range(pair<vector<int>,int>& points_in_range, int id){
 
-    points_in_range.first.erase(std::remove(points_in_range.first.begin(), //+ points_in_range.second
+    points_in_range.first.erase(std::remove(points_in_range.first.begin() + points_in_range.second, 
     points_in_range.first.end(), id), points_in_range.first.end());
 }
 
 //SEARCH IF A POINT ID IS IN ASSIGNED TO A CENTROID - CLUSTERING
 void search_if_in_range(pair<vector<int>,int>& points_in_range, vector<int>& centroid, int id, int num){
     //FOR ALL THE POINTS IN RANGE THAT HAVE NOT ALREADY BEEN ASSIGNED
-    for(int i = 0; i < points_in_range.first.size(); i++){//i = points_in_range.second
+    for(int i = points_in_range.second; i < points_in_range.first.size(); i++){
         //IF GIVEN POINT ID IS ASSIGNED TO THIS CENTROID
         if(points_in_range.first[i] == id){
             //ADD THE CENTROID TO CENTROIDS WITH SAME ID
-            // cout << "-------------------------- centroid i is" << centroids_get_centroid(num) << endl;
-            // cout << "num is " << num << endl;
-            //centroid.push_back(centroids_get_centroid(centroids[num]));
             centroid.push_back(centroids_get_centroid(num));
-            // cout << "--------------- kakakaka----------- " << endl;
+
         }
     }
 }
@@ -660,6 +656,7 @@ void get_cluster_table(vector<pair<vector<int>,int>>& points_in_range, vector<ve
     }
 }
 
+//CHECK IF A VECTOR HAS NON ZERO COORDINATES OR NOT
 bool non_zero_coordinates(vector<int>& coordinates){
 
     for(int i = 0; i < coordinates.size(); i++){

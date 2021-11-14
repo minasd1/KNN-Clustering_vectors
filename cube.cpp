@@ -7,7 +7,7 @@
 vector<int> cube_range_search(int g, int radius, int probes, int dimensions, vector<int>& query_point){
 
     int retrieved_items = 0;
-    int max_retrieved_items = 100;  //THIS MUST BE CHANGED
+    int max_retrieved_items = 100;
 
     //A VECTOR WITH ALL THE RELATIVE BUCKETS OF QUERY POINT IN HYPERCUBE
     vector <unsigned int> relative_buckets_indexes;

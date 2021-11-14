@@ -35,21 +35,25 @@ vector<int> hashTable_get_points_in_buckets(vector<int>& g){
     return points_in_buckets;
 }
 
+//GET NUMBER OF HASHTABLES - L
 int hashTable_get_num_of_htables(){
 
     return HashTables.size();
 }
 
+//GET NUMBER OF POINTS IN A HASHTABLE BUCKET
 int hashTable_get_bucket_size(int htable_num, int bucket){
 
     return HashTables[htable_num][bucket].size();
 }
 
+//GET A SPECIFIC POINT FROM A HASHTABLE BUCKET
 int hashTable_get_point(int htable_num, int bucket, int place){
 
     return HashTables[htable_num][bucket][place];
 }
 
+//PRINT HASHTABLES DATA - USED FOR CHECKING PURPOSES
 void hashTable_print_data(){
     for (int i = 0; i < HashTables.size(); i++) {
         for (int j = 0; j < HashTables[i].size(); j++){

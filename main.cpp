@@ -32,8 +32,8 @@ int main(int argc, char* argv[]){
     int probes ;                    //MAX NUMBER OF HYPERCUBE VERTICES TO BE CHECKED
     int k_cube ;                    //D'
     int M_cube ;                    //MAX NUMBER OF CANDIDATE POINTS TO BE CHECKED
-    int window= 100;
-    int k_cluster ;
+    int window= 100;                
+    int k_cluster ;                 //NUMBER OF CENTROIDS - CLUSTERING
     bool complete= false;
 
     fstream input_file;             //FILE WE READ INPUT FROM
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]){
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator(seed);
 
-    open_file(&input_file, input_file_name, fstream::in);
+    open_file(&input_file, input_file_name, fstream::in);   //OPEN INPUT FILE
 
     while(getline(input_file, line)){                       //READ FILE LINE BY LINE
         vector<int> point;
