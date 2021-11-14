@@ -30,7 +30,6 @@ public:
     G_Lsh(int k_num, int dim, engine gen, int win, int m_mod, int tab_s, int l_num);
     void id(const vector<int>& point, vector<int>& id_vector, bool is_query);
     void hash(const vector<int>& point, vector<int>& hash_vector, bool is_query);
-    void hash_centroid(const vector<double>& centroid_point, vector<int>& hash_vector);
     void print_hash_functions_data(void);
 };
 

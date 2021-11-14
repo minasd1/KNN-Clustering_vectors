@@ -21,8 +21,8 @@ int find_second_nearest_centroid(vector<int>& current_point)
     //PUSH BACK ALL THE CENTROIDS' ID - DISTANCE PAIRS IN A TABLE
     for (i= 0; i < centroids_get_size(); i++) {
         current_pair.id= i;
-        current_pair.dist= centroids_calculate_distance_point(current_point, centroids_get_centroid(i).second, 2);
-        pairs.push_back(current_pair);                              //point_vector_get_point(get_centroids_id(i))
+        current_pair.dist= calculate_distance(current_point, point_vector_get_point(get_centroids_id(i)-1));
+        pairs.push_back(current_pair);
     }
     //SORT THAT TABLE IN ASCENDING DISTANCE ORDER
     sort(pairs.begin(), pairs.end(), compare_distance);
@@ -35,49 +35,35 @@ int find_nearest_centroid(vector<int>& current_point)
 {
     int i, nearest_centroid;
     float distance, min_distance;
-    vector<double> current_centroid;
-    vector<int> point_coordinates;
-    
+    vector<int> other_point;
+
     //SET AS MINIMUM DISTANCE THE ONE BETWEEN THE POINT AND THE FIRST CENTROID
-    //other_point= point_vector_get_point(get_centroids_id(0)-1);
-    current_centroid = centroids[0].second;
-    min_distance= centroids_calculate_distance_point(current_point, current_centroid);
-    
+    other_point= point_vector_get_point(get_centroids_id(0)-1);
+    min_distance= calculate_distance(current_point, other_point);
     nearest_centroid= 0;
     //FOR THE REST OF THE CENTROIDS
-    // cout << "size of centroids is " << centroids_get_size() << endl;
     for (i= 1 ; i < centroids_get_size() ; i++) {
-        //cout << "centroids id is" << centroids_get_centroid(i) << endl;
-        //point_vector_get_point(centroids_get_centroid(i) - 1);
-        //for(int i = 0; i < )
-        //other_point= point_vector_get_point(get_centroids_id(i)-1);
-        current_centroid = centroids[i].second;
-        // cout << "before calculating distance" << endl;
-        distance = centroids_calculate_distance_point(current_point, current_centroid);
-        // cout << "and after" << endl;
+        other_point= point_vector_get_point(get_centroids_id(i)-1);
+        distance= calculate_distance(current_point, other_point);
         if (distance < min_distance) {
             min_distance= distance;
             nearest_centroid= i;
         }
-        //cout << "tsekare mia" << endl;
     }
-    // cout << "geia sou maria" << endl;
     return nearest_centroid;
 }
 
 //RECEIVES THE CLUSTER TABLE, AN INDEX FOR THAT TABLE AND AN ID
 //RETURNS TRUE WHEN THE POINT ,IN WHICH THE ID BELONGS TO,
 //IS ALREADY IN THE CLUSTER WITH THE GIVEN INDEX OF THE GIVEN CLUSTER TABLE
-bool already_in_that_cluster(vector<vector<int>>& cluster_table, int index, int id)
+bool already_in_that_cluster(vector<vector<int>> cluster_table, int index, int id)
 {
     int i;
     for (i= 0; i < cluster_table[index].size() ; i++) {
         if (id == cluster_table[index][i]) {
-            //cout << "----------------------------------------------------------------------------TRUE" << endl;
             return true;
         }
     }
-    //cout << "FALSE" << endl;
     return false;
 }
 

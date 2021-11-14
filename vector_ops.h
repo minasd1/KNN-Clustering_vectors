@@ -12,6 +12,7 @@
 
 #include "hash_functions.h"
 #include "lsh.h"
+#include "cube.h"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ static vector<vector <int> > point_vector;
 static vector<vector<int>> points_ID_vector;
 
 //VECTOR OF CENTROID POINTS - USED IN CLUSTERING
-static vector<pair<int,vector<double>>> centroids;
+static vector<int> centroids;
 
 //MARKED AND NON MARKED POINTS AS ASSIGNED TO A CLUSTER - CLUSTERING
 static vector<bool> is_assigned;
@@ -49,28 +50,29 @@ void points_ID_push_back(int index_value, vector<int>& point_id_values);
 int get_point_id_value(int index_value, int k);
 
 /*-----------------------CENTROID FUNCTIONS-------------------------------*/
-void centroids_insert_centroid(pair<int,vector<double>>& centroid);
-pair<int,vector<double>> centroids_get_centroid(int index);
-vector<int> centroids_get_centroid_ids();
+void centroids_insert_point(int id);
+int centroids_get_centroid(int index);
 int centroids_get_size();
-// vector<int> centroids_get_table();
-float centroids_get_radii();
+vector<int> centroids_get_table();
+int centroids_get_radii();
 float centroids_calculate_min_distance_point(vector<int>& point);
 void centroids_calculate_min_distance_input(vector<float>& points_min_distances);
 void centroids_pick_first_centroid();
 void centroids_pick_next_centroid(vector<float>& partial_sums);
 int centroids_find_nearest_centroid(vector<int>& centroids, int id);
 void centroids_duplicates_assign_to_nearest_centroid(vector<pair<vector<int>,int>>& points_in_range);
+int get_centroids_id(int i);
+void set_centroids_id(vector<int> v);
 void centroids_get_hashtable_hashes(G_Lsh g, vector<vector<int>>& hashes);
-float centroids_calculate_distance_centroid(vector<double>& centroid1, vector<double>& centroid2, int k=2);
-float centroids_calculate_distance_point(vector<int>& point, vector<double>& centroid, int k=2);
-double centroids_calculate_dot_product(const vector <double>& centroid, vector <int>& v);
+void centroids_get_hypercube_hashes(G_Hypercube g, vector<int>& hashes);
 void centroids_clear();
 void centroids_print_data();
 
 /*-----------------------IS ASSIGNED VECTOR FUNCTIONS-----------------------*/
 void is_assigned_initialize();
+int is_assigned_get_size();
 int is_assigned_count_assigned();
+int is_assigned_count_unassigned();
 void mark_as_assigned(int index);
 bool already_assigned(int index);
 void partition_assigned_unassigned(pair<vector<int>,int>& points_in_range);
@@ -84,7 +86,7 @@ void assigned_print_assigned();
 int calculate_dot_product(const vector <int>& point, vector <int>& v);
 float calculate_distance(vector<int>& point1, const vector<int>& point2, int k=2);
 vector<int> add_vectors(vector<int>& point1, vector<int>& point2);
-vector<int> find_mean_vector(vector<int> vector_of_sums, int num_of_vectors);
+vector<int> find_mean_vector(vector<int> vector_of_sums, int num_of_vectors, int& last_known_id);
 
 /*-------------------------OTHER FUNCTIONS---------------------------------*/
 void create_vector_int(vector<int>& ints, int k, int w, std::default_random_engine& generator);

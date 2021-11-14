@@ -17,6 +17,7 @@
 #include "hypercube.h"
 #include "cube.h"
 #include "cluster.h"
+#include "conf_file.h"
 
 
 using namespace std;
@@ -40,7 +41,8 @@ int main(int argc, char* argv[]){
     fstream output_file;            //FILE TO WRITE OUTPUT TO
     int point_id;
     string line;
-    string input_file_name, query_file_name, output_file_name, config_file_name, method;
+    string input_file_name, query_file_name, output_file_name, config_file_name;
+    string method;
     int start;
     int finish = 0;
     bool first_iteration = true;
@@ -101,62 +103,19 @@ int main(int argc, char* argv[]){
     is_assigned_initialize();
 
     if(strcmp(argv[0], "./cluster") == 0){
-        
-        //OPEN CLUSTER CONFIGURATION FILE
-        open_file(&config_file, config_file_name, fstream::in);
-        
-        finish = 0;
-        int count = 0;
 
-        while(getline(config_file, line)){
-            
-            start = 0;
-            while(start < line.size()){
-                
-                start = line.find_first_of(' ', start);
-                
-                finish = line.size();
-                
-                    
-                token = line.substr(start, finish - start);
-                if(count == 0){
-                    k_cluster = stoi(token);
-                }
-                else if(count == 1){
-                    L = stoi(token);
-                }
-                else if(count == 2){
-                    k = stoi(token);
-                }
-                else if(count == 3){
-                    M_cube = stoi(token);
-                }
-                else if(count == 4){
-                    k_cube = stoi(token);
-                }
-                else if(count == 5){
-                    probes = stoi(token);
-                }
-
-                start = finish;
-                
-                count++;
-            }
-
-             
-        }
-
-        close_file(&config_file);
+        read_configuration_file(config_file, config_file_name, k_cluster, L, k, M_cube, k_cube, probes);
     }
     cout << "k_cluster: " << k_cluster << endl;
     cout << "L: " << L << endl;
     cout << "k: " << k << endl;
     cout << "M_cube: " << M_cube << endl;
-    cout << "k_cube" << k_cube << endl;
+    cout << "k_cube: " << k_cube << endl;
     cout << "probes: " << probes << endl;
 
     initialize_points_ID_vector(number_of_points, L);
 
+    //NUMBER OF BUCKETS IN EACH HASHTABLE
     buckets = number_of_points/points_divider;
 
     //INITIALIZE G FUNCTION THAT LEADS US TO HASHTABLE BUCKETS
@@ -165,7 +124,7 @@ int main(int argc, char* argv[]){
     //INITIALIZE G FUNCTION THAT LEADS US TO HYPERCUBE BUCKETS
     G_Hypercube g_cube(dimensions, generator, window, k_cube);
 
-    if(strcmp(argv[0], "./lsh") == 0 || strcmp(argv[0], "./cluster") == 0){
+    if(strcmp(argv[0], "./lsh") == 0 || ((strcmp(argv[0], "./cluster") == 0) && (method == "lsh"))){
 
         //INITIALIZE L HASHTABLES WITH HASHTABLESIZE BUCKETS AND ZERO POINTS IN EACH BUCKET
         hashTable_initialization(L, buckets);
@@ -178,7 +137,8 @@ int main(int argc, char* argv[]){
 
         hash_vector.clear();
     }
-    else if(strcmp(argv[0], "./cube") == 0){
+
+    if(strcmp(argv[0], "./cube") == 0 || ((strcmp(argv[0], "./cluster") == 0) && (method == "hypercube"))){
 
         //INITIALIZE A HYPERCUBE WITH 2^D' BUCKETS AND ZERO POINTS IN EACH BUCKET
         hyperCube_initialization(pow(2, k_cube));
@@ -323,49 +283,31 @@ int main(int argc, char* argv[]){
             close_file(&output_file);
             close_file(&query_file);
         }
-        else if(strcmp(argv[0], "./cube") == 0){
-
-            //OPEN CLUSTER CONFIGURATION FILE
-            open_file(&config_file, argv[3], fstream::in);
-
-            finish = 0;
-
-            while(getline(config_file, line)){
-
-                start = 0;
-                while(start < line.size()){
-                    finish = line.find_first_of(' ', start);
-                }
-
-                if(finish == string::npos){
-
-                    finish = line.size();
-                }
-
-                token = line.substr(start, finish - start);
-                start = finish + 1;
-                cout << "token is " << token << endl; 
-            }
-        }
         else if(strcmp(argv[0], "./cluster") == 0){
 
-            // //OPEN FILE TO WRITE RESULTS TO
-            // open_file(&output_file, output_file_name, fstream::out);
+            //OPEN FILE TO WRITE RESULTS TO
+            open_file(&output_file, output_file_name, fstream::out);
+
+            if(method == "classic"){
+                lloyds(k_cluster, output_file, false);
+            }
+            else if(method == "lsh"){
+
+                reverse_assignment_lsh(g_lsh, output_file, k_cluster, false);
+            }
+            else if(method == "hypercube"){
+
+                reverse_assignment_cube(g_cube, output_file, k_cluster, probes, false);
+            }
 
             continue_execution = 0;
         }
 
         // read_user_input(query_file_name, &continue_execution);
-        // close_file(&output_file);
+        close_file(&output_file);
 
 
     }
-
-    cout << "k_cluster is " << k_cluster << endl;
-    //reverse_assignment_lsh(g_lsh, k_cluster);
-    open_file(&output_file, output_file_name, fstream::out);
-    lloyds(20, output_file, false, true);
-    close_file(&output_file);
 
 
     close_file(&input_file);

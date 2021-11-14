@@ -85,30 +85,6 @@ void G_Lsh::hash(const vector<int>& point, vector<int>& hash_vector, bool is_que
     hash_vector = hash_values;
 }
 
-//RETURNS A VECTOR THAT CONTAINS THE HASH VALUE OF A GIVEN CENTROID POINT (NOT IN DATASET) FOR EVERY HASH FUNCTION
-void G_Lsh::hash_centroid(const vector<double>& centroid_point, vector<int>& hash_vector)
-{
-    int i, j, sum, h, id;
-    vector<int> hash_values;
-    vector<int> ids;
-
-    for (i=0; i < l ; i++) {  //FOR EVERY G FUNCTION
-        sum= 0;
-        for (j=0 ; j < k ; j++) { //ADD k r*h(p) PRODUCTS
-            h= (centroid_calculate_dot_product(centroid_point, v_vectors[h_functions[i][j]]) + t[h_functions[i][j]])/w;
-            sum+= r[i][j]*h;
-        }
-        id= mod(sum, m);
-        ids.push_back(id);
-    }
-
-    for (i=0; i< ids.size() ; i++) {
-        hash_values.push_back(mod(ids[i], table_size));
-    }
-    hash_vector = hash_values;
-}
-
-
 //PRINTS THE V_VECTORS, t, r (THE DATA OF EACH G HASH FUNCTION)
 //FOR DEBUGGING PURPOSES
 void G_Lsh::print_hash_functions_data(void)

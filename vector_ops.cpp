@@ -121,27 +121,14 @@ int get_point_id_value(int index_value, int k){
 }
 
 //INSERT A POINT ID TO CENTROIDS VECTOR
-void centroids_insert_centroid(pair<int,vector<double>>& centroid){
+void centroids_insert_point(int id){
 
-    centroids.push_back(centroid);
+    centroids.push_back(id);
 }
 
-pair<int,vector<double>> centroids_get_centroid(int index){
+int centroids_get_centroid(int index){
 
     return centroids[index];
-}
-
-//GET A VECTOR WITH ALL THE CENTROID IDS
-vector<int> centroids_get_centroid_ids(){
-
-    vector<int> centroid_ids;
-    //FOR ALL THE CENTROIDS
-    for(int i = 0; i < centroids.size(); i++){
-        //GET THEIR IDS
-        centroid_ids.push_back(centroids[i].first);
-    }
-
-    return centroid_ids;
 }
 
 //GET NUMBER OF CENTROID POINTS
@@ -150,20 +137,20 @@ int centroids_get_size(){
     return centroids.size();
 }
 
-// vector<int> centroids_get_table(){
+vector<int> centroids_get_table(){
 
-//     vector<int> centroid_ids;
-//     for(int i = 0; i < centroids.size(); i++){
+    vector<int> centroid_ids;
+    for(int i = 0; i < centroids.size(); i++){
 
-//         centroid_ids.push_back(centroids_get_centroid(i));
-//     }
+        centroid_ids.push_back(centroids_get_centroid(i));
+    }
 
-//     return centroid_ids;
-// }
+    return centroid_ids;
+}
 
 //GET THE MINIMUM DISTANCE BETWEEN CENTROIDS
 //USED AS A STARTING RANGE IN REVERSE ASSIGNMENT
-float centroids_get_radii(){
+int centroids_get_radii(){
 
     int min_distance = numeric_limits<int>::max();
     int current_distance;
@@ -174,7 +161,7 @@ float centroids_get_radii(){
 
             if(i != j){
 
-                current_distance = centroids_calculate_distance_centroid(centroids[i].second, centroids[j].second, 2);
+                current_distance = calculate_distance(point_vector[centroids[i] - 1], point_vector[centroids[j] - 1], 2);
                 if(current_distance < min_distance){
 
                     min_distance = current_distance;
@@ -197,7 +184,7 @@ float centroids_calculate_min_distance_point(vector<int>& point){
     for(int i = 0; i < centroids_get_size(); i++){
 
         //INITIAL CENTROIDS ARE POINTS FROM INPUT
-        current_distance = centroids_calculate_distance_point(point, centroids[i].second);
+        current_distance = calculate_distance(point_vector[centroids[i] - 1], point);
 
         if(current_distance < min_distance){
 
@@ -234,7 +221,6 @@ void centroids_calculate_min_distance_input(vector<float>& points_min_distances)
 void centroids_pick_first_centroid(){
 
     int first_centroid_id;
-    vector<int> first_centroid_coordinates;
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     default_random_engine generator(seed);
@@ -245,12 +231,7 @@ void centroids_pick_first_centroid(){
     first_centroid_id = p_distribution(generator);
 
     //INSERT THE FIRST CENTROID ID TO CENTROIDS VECTOR
-    centroids[0].first = first_centroid_id;
-    first_centroid_coordinates = point_vector_get_point(first_centroid_id-1);
-
-    for(int i = 1; i < first_centroid_coordinates.size(); i++){
-        centroids[0].second.push_back((double)first_centroid_coordinates[i]);
-    }
+    centroids.push_back(first_centroid_id);
 
 }
 
@@ -259,10 +240,6 @@ void centroids_pick_next_centroid(vector<float>& partial_sums){
 
     double x;
     int r, i;
-
-    pair<int,vector<double>> next_centroid;
-    vector<int> centroid_ids = centroids_get_centroid_ids();
-    vector<int> coordinates;
 
     vector<int>::iterator it;
 
@@ -286,18 +263,13 @@ void centroids_pick_next_centroid(vector<float>& partial_sums){
             i++;
         }
 
-        it = find(centroid_ids.begin(), centroid_ids.end(), r);
+        it = find(centroids.begin(), centroids.end(), r);
 
-    }while(it != centroid_ids.end());  //WHILE r ALREADY EXISTS IN CENTROIDS - CALCULATE A NEW r
+    }while(it != centroids.end());  //WHILE r ALREADY EXISTS IN CENTROIDS - CALCULATE A NEW r
 
-    next_centroid.first = r;
 
-    coordinates = point_vector_get_point(r - 1);
-    for(int i = 1; i < coordinates.size(); i++){
-        next_centroid.second.push_back(coordinates[i]);
-    }
     //PUSH THE NEW CENTROID ID TO CENTROIDS VECTOR
-    centroids.push_back(next_centroid);
+    centroids.push_back(r);
 
 }
 
@@ -326,8 +298,8 @@ int centroids_find_nearest_centroid(vector<int>& centroids_with_same_id, int id)
             min_distance = current_distance;
             centroid_with_min_distance = i;
         }
-        
-        
+
+
     }
 
     return centroid_with_min_distance;
@@ -337,14 +309,15 @@ int centroids_find_nearest_centroid(vector<int>& centroids_with_same_id, int id)
 //ASSIGNED A POINT THAT IS ASSIGNED TO MORE THAN ONE CENTROID'S TO IT'S NEAREST CENTROID
 void centroids_duplicates_assign_to_nearest_centroid(vector<pair<vector<int>,int>>& points_in_range){
 
-    vector<int> centroids_with_same_id; 
+    vector<int> centroids_with_same_id;
+    int nearest_centroid;
     //FOR ALL THE CENTROIDS
     for(int i = 0; i < points_in_range.size(); i++){
         //FOR ALL THE POINTS ASSIGNED TO THEM
-        for(int k = points_in_range[i].second; k < points_in_range[i].first.size(); k++){
+        for(int k = 0; k < points_in_range[i].first.size(); k++){//k = points_in_range[i].second
             // cout << "k is " << k << endl;
             // cout << "and size is " << points_in_range[i].first.size() << endl;
-            centroids_with_same_id.push_back(centroids[i].first);                  //centroids_get_centroid(i)
+            centroids_with_same_id.push_back(centroids_get_centroid(i));
             //FOR ALL THE OTHER CENTROIDS
             for(int j = i+1; j < points_in_range.size(); j++){
                 //SEARCH IF THERE IS ANOTHER CENTROID THAT HAS THE SAME ID
@@ -355,67 +328,59 @@ void centroids_duplicates_assign_to_nearest_centroid(vector<pair<vector<int>,int
             if(centroids_with_same_id.size() >= 2){
                 //FIND THE NEAREST CENTROID TO THE POINT WITH THIS ID
                 // cout << "parapapam perom perom " << endl;
-                centroids_find_nearest_centroid(centroids_with_same_id, points_in_range[i].first[k]);
+                nearest_centroid = centroids_find_nearest_centroid(centroids_with_same_id, points_in_range[i].first[k]);
                 // cout << "maybe ------------------------ check here " << endl;
-                for(int centroid = 1; centroid < centroids_with_same_id.size(); centroid++){
+                for(int centroid = 0; centroid < centroids_with_same_id.size(); centroid++){
                     // cout << "also check here " << endl;
-                    //REMOVE POINT ID FROM ALL THE CENTROID THAT DO NOT HAVE MINIMUM DISTANCE WITH IT
-                    update_points_in_range(points_in_range[centroid], points_in_range[i].first[k]);
+                    if(centroid != nearest_centroid){
+                        //REMOVE POINT ID FROM ALL THE CENTROID THAT DO NOT HAVE MINIMUM DISTANCE WITH IT
+                        update_points_in_range(points_in_range[centroid], points_in_range[i].first[k]);
+                    }
+                    
                     // cout << "filage ta rouxa sou gia na xeis ta misa paliomalaka " << endl;
                 }
                 // cout << "paizei na ti gamises kai edo " << endl;
-                
+
             }
             centroids_with_same_id.clear();
         }
     }
-    
+
     label_assigned_points(points_in_range);
 }
 
+int get_centroids_id(int i){
+    return centroids[i];
+}
+
+void set_centroids_id(vector<int> v){
+    int i;
+
+    for(i=0 ; i < v.size() ; i++) {
+        centroids[i]= v[i];
+    }
+}
+
+//GET EVERY CENTROID'S HASHTABLE BUCKET HASHES
 void centroids_get_hashtable_hashes(G_Lsh g, vector<vector<int>>& hashes){
 
     vector<int> hash_vector;
 
     for(int i = 0; i < centroids.size(); i++){
-        g.hash(centroids[i].second, hash_vector, 1); //point_vector_get_point(centroids[i]-1)
+        g.hash(point_vector_get_point(centroids[i]-1), hash_vector, 1);
         hashes.push_back(hash_vector);
     }
 }
 
-//CALCULATE DISTANCE BETWEEN TWO CENTROIDS
-float centroids_calculate_distance_centroid(vector<double>& centroid1, vector<double>& centroid2, int k){
-    float distance = 0.0;
-    int sum = 0;
-    
-    for (int i=0 ; i < centroid1.size() ; i++) {
-        sum+= pow(abs(centroid1[i]-centroid2[i]), k);
+//GET EVERY CENTROID'S HYPERCUBE BUCKET HASH
+void centroids_get_hypercube_hashes(G_Hypercube g, vector<int>& hashes){
+
+    unsigned int hash_value;
+
+    for(int i = 0; i < centroids.size(); i++){
+        g.hash(point_vector_get_point(centroids[i]-1), hash_value, 1);
+        hashes.push_back(hash_value);
     }
-    distance = pow(sum, 1.0/(float)k);
-
-    return distance;
-}
-
-//CALCULATE DISTANCE BETWEEN A CENTROID AND A POINT
-float centroids_calculate_distance_point(vector<int>& point, vector<double>& centroid, int k){
-    float distance = 0.0;
-    int sum = 0;
-    
-    for (int i=1 ; i < point.size() ; i++) {
-        sum+= pow(abs(point[i]-centroid[i-1]), k);
-    }
-    distance = pow(sum, 1.0/(float)k);
-
-    return distance;
-}
-
-//CALCULATE DOT PRODUCT OF A CENTROID WITH VECTOR V
-double centroids_calculate_dot_product(const vector <double>& centroid, vector <int>& v){
-    double product = 0;
-    for(int i = 0; i < centroid.size(); i++){
-        product = product + centroid[i] * v[i];
-    }
-    return product;
 }
 
 void centroids_clear(){
@@ -427,7 +392,7 @@ void centroids_clear(){
 void centroids_print_data(){
 
     for(int i = 0; i < centroids.size(); i++){
-        cout << centroids[i].first << endl;
+        cout << centroids[i] << endl;
     }
 }
 
@@ -440,6 +405,11 @@ void is_assigned_initialize(){
 
 }
 
+int is_assigned_get_size(){
+
+    return is_assigned.size();
+}
+
 //COUNT NUMBER OF POINTS THAT ARE ASSIGNED
 int is_assigned_count_assigned(){
     int assigned_num = 0;
@@ -449,7 +419,20 @@ int is_assigned_count_assigned(){
             assigned_num++;
         }
     }
-    
+
+    return assigned_num;
+}
+
+//COUNT NUMBER OF POINTS THAT ARE NOT ASSIGNED
+int is_assigned_count_unassigned(){
+    int assigned_num = 0;
+
+    for(int i = 0; i < is_assigned.size(); i++){
+        if(is_assigned[i] == false){
+            assigned_num++;
+        }
+    }
+
     return assigned_num;
 }
 
@@ -464,7 +447,7 @@ void mark_as_assigned(int index){
 bool already_assigned(int index){
 
     if(is_assigned[index] == true){
-        
+
         return true;
     }
     else{
@@ -475,21 +458,21 @@ bool already_assigned(int index){
 
 //PARTITION POINTS IN RANGE OF CENTROID TO ASSIGNED AND UNASSIGNED
 void partition_assigned_unassigned(pair<vector<int>,int>& points_in_range){
-    
+
     int temp;
     int left = 0;
     int right = points_in_range.first.size() - 1;
     int partition_pointer = 0;
-    
+
     while(left < right){
-        
+
         //WHILE POINT IN LEFT INDEX IS ALREADY ASSIGNED
         while(already_assigned(points_in_range.first[left] - 1)){
-            left++; 
+            left++;
             if(left == right){
                 points_in_range.second = left + 1;
                 return;
-            }    
+            }
         }
         while(!already_assigned(points_in_range.first[right] - 1)){
             right--;
@@ -542,10 +525,10 @@ void assigned_print_assigned(){
 }
 
 //CALCULATE DOT PRODUCT OF TWO VECTORS
-int calculate_dot_product(const vector <int>& point, vector <int>& v){
+int calculate_dot_product(const vector <int>& point, vector <int>& d_vector){
     int product = 0;
     for(int i = 1; i < point.size(); i++){
-        product = product + point[i] * v[i-1];
+        product = product + point[i] * d_vector[i-1];
     }
     return product;
 }
@@ -572,22 +555,16 @@ vector<int> add_vectors(vector<int>& point1, vector<int>& point2)
 
 //RECEIVES A VECTOR OF SUMS AND THE NUMBER OF VECTORS THAT WERE ADDED
 //RETURNS A VECTOR THAT CONTAINS THE FLOOR OF THE MEAN VALUE FOR EACH COORDINATE
-vector<int> find_mean_vector(vector<int> vector_of_sums, int num_of_vectors)
+vector<int> find_mean_vector(vector<int> vector_of_sums, int num_of_vectors, int& last_known_id)
 {
     int i;
     int mean_value;
     float float_mean_value;
     vector<int> mean_vector;
 
+    mean_vector.push_back(++last_known_id);
     for (i=1; i < vector_of_sums.size() ; i++) {
-        float_mean_value= vector_of_sums[i]/(float)num_of_vectors;
-        //ROUNDING OF THE EXACT MEAN VALUE SO THAT IT WILL BE STORED AS AN INTEGER
-        if (int(float_mean_value*10) %10 >= 5) {
-            mean_value= (float_mean_value+1)/1;
-        }
-        else {
-            mean_value= float_mean_value/1;
-        }
+        mean_value= vector_of_sums[i]/num_of_vectors;
         mean_vector.push_back(mean_value);
     }
     return mean_vector;
@@ -598,9 +575,7 @@ float calculate_distance(vector<int>& point1, const vector<int>& point2, int k)
 {
     float distance = 0.0;
     int sum = 0;
-    // cout << "size of point1 is" << point1.size() << endl;
-    // cout << "size of point2 is" << point2.size() << endl;
-    // cout << "id of point2 is " << point2[0] << endl;
+
     for (int i=1 ; i < point1.size() ; i++) {
         sum+= pow(abs(point1[i]-point2[i]), k);
     }
@@ -644,21 +619,21 @@ bool already_exists(vector<int>& ids, int id){
 //REMOVE POINT ID FROM ALL THE CLUSTERS OF CENTROID'S THAT DO NOT HAVE MINIMUM DISTANCE WITH IT
 void update_points_in_range(pair<vector<int>,int>& points_in_range, int id){
 
-    points_in_range.first.erase(std::remove(points_in_range.first.begin() + points_in_range.second,
+    points_in_range.first.erase(std::remove(points_in_range.first.begin(), //+ points_in_range.second
     points_in_range.first.end(), id), points_in_range.first.end());
 }
 
 //SEARCH IF A POINT ID IS IN ASSIGNED TO A CENTROID - CLUSTERING
 void search_if_in_range(pair<vector<int>,int>& points_in_range, vector<int>& centroid, int id, int num){
     //FOR ALL THE POINTS IN RANGE THAT HAVE NOT ALREADY BEEN ASSIGNED
-    for(int i = points_in_range.second; i < points_in_range.first.size(); i++){
+    for(int i = 0; i < points_in_range.first.size(); i++){//i = points_in_range.second
         //IF GIVEN POINT ID IS ASSIGNED TO THIS CENTROID
         if(points_in_range.first[i] == id){
             //ADD THE CENTROID TO CENTROIDS WITH SAME ID
             // cout << "-------------------------- centroid i is" << centroids_get_centroid(num) << endl;
             // cout << "num is " << num << endl;
             //centroid.push_back(centroids_get_centroid(centroids[num]));
-            centroid.push_back(centroids[num].first);                           //centroids_get_centroid(num)
+            centroid.push_back(centroids_get_centroid(num));
             // cout << "--------------- kakakaka----------- " << endl;
         }
     }
@@ -674,6 +649,7 @@ bool points_assigned_in_clusters(vector<int>& points){
     return false;
 }
 
+//UPDATE CLUSTER TABLE WITH THE IDS OF THE POINTS IN EACH CLUSTER
 void get_cluster_table(vector<pair<vector<int>,int>>& points_in_range, vector<vector<int>>& cluster_table){
 
     cluster_table.clear();
