@@ -15,12 +15,12 @@ vector<int> cube_range_search(int g, int radius, int probes, int dimensions, vec
 
     //POINTS THAT ARE IN THE GIVEN RADIUS
     vector<int> points_in_range;
-    
+
     //FOR ALL THE ELEMENTS IN QUERY POINT'S BUCKET (INDICATED BY G)
     for(int i = 0; i < hyperCube_get_bucket_size(g); i++){
         //IF INPUT POINT IS NOT THE SAME AS THE QUERY POINT AND DOES NOT ALREADY EXIST IN POINTS IN RANGE
-        if((query_point[0] != hyperCube_get_point(g, i)) 
-        && (!already_exists(points_in_range, hyperCube_get_point(g, i))) 
+        if((query_point[0] != hyperCube_get_point(g, i))
+        && (!already_exists(points_in_range, hyperCube_get_point(g, i)))
         && (!already_assigned(hyperCube_get_point(g, i)-1))){ //ALSO CHECK THAT IT IS NOT ASSIGNED ALREADY - CLUSTERING
 
             //IF DISTANCE BETWEEN QUERY POINT AND A POINT IN BUCKET IS IN THE GIVEN RADIUS
@@ -28,23 +28,23 @@ vector<int> cube_range_search(int g, int radius, int probes, int dimensions, vec
                 //ADD THE POINT TO POINTS IN RANGE
                 points_in_range.push_back(hyperCube_get_point(g, i));
                 retrieved_items++;
-    
+
                 if(retrieved_items == max_retrieved_items){
 
                     return points_in_range;
                 }
             }
         }
-        
-    
+
+
     }
-    
+
     //FOR ALL THE RELATIVE BUCKETS OF QUERY POINT
     for(int i = 0; i < relative_buckets_indexes.size(); i++){
         //FOR ALL THEIR ELEMENTS
         for(int j = 0; j < hyperCube_get_bucket_size(relative_buckets_indexes[i]); j++){
             //IF INPUT POINT IS NOT THE SAME AS THE QUERY POINT AND DOES NOT ALREADY EXIST IN POINTS IN RANGE
-            if((!already_exists(points_in_range, hyperCube_get_point(relative_buckets_indexes[i], j))) 
+            if((!already_exists(points_in_range, hyperCube_get_point(relative_buckets_indexes[i], j)))
             && (!already_assigned(hyperCube_get_point(relative_buckets_indexes[i], j)-1))){ //ALSO CHECK THAT IT IS NOT ASSIGNED ALREADY - CLUSTERING
                 //IF DISTANCE BETWEEN QUERY POINT AND A POINT IN RELATIVE BUCKET IS IN THE RADIUS
                 if(calculate_distance(query_point, point_vector_get_point(hyperCube_get_point(relative_buckets_indexes[i], j) - 1), 2) < radius){
@@ -67,7 +67,7 @@ vector<int> cube_range_search(int g, int radius, int probes, int dimensions, vec
 //RECEIVES A QUERY POINT AND RETURNS THE FIRST k NEAREST NEIGHBORS IN ASCENDING DISTANCE ORDER
 //THE LAST ARGUMENT IS OPTIONAL AND SHOWS THE MAXIMUM NUMBER OF POINTS TO BE EXAMINED AS POSSIBLE NEAREST NEIGHBORS
 //IF NO FORTH ARGUMENT IS GIVEN THEN ALL THE POINTS IN THE SAME BUCKETS WITH query_point ARE EXAMINED
-vector<dist_id_pair> cube_find_approximate_knn(vector<int> query_point, int k,  G_Hypercube& g, int probes, int dimensions, int max_candidates)
+vector<dist_id_pair> cube_find_approximate_knn(vector<int> query_point, int k,  G_Hypercube& g, int probes, int dimensions, int& count_nn, int max_candidates)
 {
     unsigned int query_hash;
     int points_in_table_counter= 0;//A COUNTER OF THE ELEMENTS INSIDE THE nn_table
@@ -120,8 +120,9 @@ vector<dist_id_pair> cube_find_approximate_knn(vector<int> query_point, int k,  
             }
             candidates_counter++;
         }
+        count_nn= nn_table.size(); //STORE THE NUMBER OF NEIGHBORS THAT ARE CONTAINED IN THE NN_TABLE
     }
-    
+
     //IF THE POINTS IN THE QUERY'S BUCKET ARE LESS THAN K
     //FILL THE REMAINING NN_TABLE CELLS WITH POINTS OF THE RELATIVE BUCKETS
     if (points_in_table_counter < k) {
@@ -169,21 +170,24 @@ vector<dist_id_pair> cube_find_approximate_knn(vector<int> query_point, int k,  
                 }
             }
         }
+        count_nn= nn_table.size(); //STORE THE NUMBER OF NEIGHBORS THAT ARE CONTAINED IN THE NN_TABLE
     }
 
     if(nn_table.size() == 0){
     //IF THERE ARE NO POINTS IN QUERY'S BUCKET OR QYERY'S ADJACENT BUCKETS
+        count_nn= nn_table.size(); //STORE THE NUMBER OF NEIGHBORS THAT ARE CONTAINED IN THE NN_TABLE
         current_pair.id= -1;
         current_pair.dist = -1;
 
         nn_table.push_back(current_pair);
     }
-    
+
     //JUST IN CASE THERE ARE LESS THAN k CANDIDATE POINTS IN ALL THE BUCKETS
     //(BOTH QUERY'S AND RELATIVE BUCKETS)
     if (nn_table.size() < k) {
+        count_nn= nn_table.size(); //STORE THE NUMBER OF NEIGHBORS THAT ARE CONTAINED IN THE NN_TABLE
         sort(nn_table.begin(), nn_table.end(), compare_distance);
     }
-    
+
     return nn_table;
 }

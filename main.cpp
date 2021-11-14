@@ -57,6 +57,8 @@ int main(int argc, char* argv[]){
     vector<int> hash_vector;        //INDEX OF EVERY HASHTABLE BUCKET THAT A GIVEN POINT WILL BE INSERTED
     unsigned int hash_value;
     int continue_execution = 1;
+    int count_nn; //STORES THE NUMBER OF NEAREST NEIGHBORS A TABLE CONTAINS
+
 
     int i;
     vector<dist_id_pair> points_lsh, points_cube, points_brute;
@@ -236,7 +238,7 @@ int main(int argc, char* argv[]){
                     //CUBE NEAREST NEIGHBORS
                     //FIND TIME CUBE - APPROXIMATE NEIGHBORS
                     auto start_time = std::chrono::high_resolution_clock::now();
-                    points_cube= cube_find_approximate_knn(query_point, N, g_cube, probes, k_cube, M_cube);
+                    points_cube= cube_find_approximate_knn(query_point, N, g_cube, probes, k_cube, count_nn, M_cube);
                     auto stop_time = std::chrono::high_resolution_clock::now();
                     auto time_cube = std::chrono::duration_cast<std::chrono::microseconds>(stop_time - start_time);
                     //FIND TIME BRUTE FORCE - EXACT NEIGHBORS
@@ -250,9 +252,15 @@ int main(int argc, char* argv[]){
                         if(points_cube[i-1].id == -1){
                             output_file << "No points found in query's bucket or it's relative buckets" << endl;
                         }
-                        else{
+                        //IF AT LEAST i POINTS HAVE BEEN FOUND
+                        else if (i <= count_nn){
                             output_file << "Nearest neighbor-" << i<< ": " << points_cube[i-1].id << endl;
                             output_file << "distanceCUBE: " << points_cube[i-1].dist << endl;
+                        }
+                        //IF LESS THAN N POINTS HAVE BEEN FOUND, FOR THE REMAINING (NOT FOUND) POINTS
+                        else {
+                            output_file << "Nearest neighbor-" << i<< ": No more points found in query's bucket or (relative) buckets" << endl;
+                            output_file << "distanceCUBE: - " << endl;
                         }
 
                         output_file << "distanceTrue: " << points_brute[i-1].dist << endl;
