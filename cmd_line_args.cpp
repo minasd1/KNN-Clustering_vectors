@@ -10,11 +10,11 @@ using namespace std;
 //Initializes program's variables with command line arguments
 int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
                       int& k_lsh, int& k_cube, int& l, string& output_file, int& n,
-                      float& r, int& m, int& probes, string& config_file, string& method)
+                      float& r, int& m, int& probes, string& config_file, string& method, bool& complete_flag)
 {
     int i;
     bool i_flag, k_lsh_flag, k_cube_flag, l_flag, o_flag, q_flag,n_flag, r_flag,
-         p_flag, m_flag, c_flag, method_flag, complete_flag;
+         p_flag, m_flag, c_flag, method_flag;
 
     //Flags for given arguments (false for missing args)
     i_flag= false;

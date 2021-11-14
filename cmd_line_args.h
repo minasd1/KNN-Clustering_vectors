@@ -6,6 +6,6 @@ using namespace std;
 
 int read_cmd_args(int argc, char** argv, string& input_file, string& query_file,
                       int&  k_lsh, int& k_cube, int& l, string& output_file, int& n,
-                      float& r, int& m, int& probes, string& config_file, string& method);
+                      float& r, int& m, int& probes, string& config_file, string& method, bool& complete_flag);
 
 #endif
