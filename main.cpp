@@ -298,11 +298,11 @@ int main(int argc, char* argv[]){
             open_file(&output_file, output_file_name, fstream::out);
 
             if(method == "classic"){
-                lloyds(k_cluster, output_file, false);
+                lloyds(k_cluster, output_file, complete);
             }
             else if(method == "lsh"){
 
-                reverse_assignment_lsh(g_lsh, output_file, k_cluster, false);
+                reverse_assignment_lsh(g_lsh, output_file, k_cluster, complete);
             }
             else if(method == "hypercube"){
 
