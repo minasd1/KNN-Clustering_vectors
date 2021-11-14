@@ -293,7 +293,7 @@ int main(int argc, char* argv[]){
             }
             else if(method == "lsh"){
 
-                reverse_assignment_lsh(g_lsh, k_cluster);
+                reverse_assignment_lsh(g_lsh, output_file, k_cluster, false);
             }
             else if(method == "hypercube"){
 

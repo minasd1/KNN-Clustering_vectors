@@ -171,20 +171,23 @@ void reverse_assignment_lloyds(vector<vector<int>>& cluster_table, int number_of
 }
 
 
-void reverse_assignment_lsh(G_Lsh g, int k){
+void reverse_assignment_lsh(G_Lsh g, fstream& output_file, int k, bool complete_flag){
 
     vector<int> centroid;                //HERE CENTROIDS ARE THE QUERY POINTS
-    //vector<int> hash_vector;             //THE HASHES PRODUCED BY G THAT LEADS US TO LSH HASHTABLE BUCKETS
-    vector<int> appending_points;
+    vector<int> appending_points;        //NEW POINTS THAT WILL BE ADDED TO CLUSTERS   
     vector<pair<vector<int>,int>> points_in_range; //ALL THE POINTS THAT ARE INSIDE THE GIVEN RADIUS FROM EVERY CENTROID
-    vector<vector<int>> cluster_table;
-    vector<vector<int>> hashes;
+    vector<vector<int>> cluster_table;   //TABLE WITH ALL THE POINTS IN EACH CLUSTER
+    vector<vector<int>> hashes;          //INDEXES THAT LEAD CENTROIDS TO HASHTABLE BUCKETS
+    vector<int> current_point;
     int radius = centroids_get_radii();  //SET MINIMUM DISTANCE BETWEEN CENTROIDS DIVIDED BY 2 AS FIRST RADIUS
     int last_id = point_vector_get_size();
     bool first_iteration = true;
     int new_points_assigned = 0;
     int previous_points_assigned = 0;
+    int dimensions = point_vector_get_point(0).size(); //DIMENSIONS OF POINTS
 
+    //START COUNTING TIME
+    auto start_time = std::chrono::high_resolution_clock::now();
     k_means_plus_plus(k);                //INITIALIZE K CENTROIDS USING K-MEANS++ ALGORITHM
 
     do{
@@ -256,6 +259,41 @@ void reverse_assignment_lsh(G_Lsh g, int k){
 
     //ASSIGN THE REST OF THE POINTS THAT HAVE NOT BEEN ASSIGNED TO CLUSTERS USING LLOYD'S ALGORITHM
     reverse_assignment_lloyds(cluster_table, k, last_id);
+
+    //WHEN THE CLUSTERS HAVE BEEN DEFINITIVELY FORMED STOP COUNTING TIME
+    auto stop_time = std::chrono::high_resolution_clock::now();
+
+    //PRINT THE RESULTS
+    output_file << "Algorithm: LSH" << endl;
+    for (int i= 0 ; i < centroids_get_size() ; i++) {
+        output_file << "CLUSTER-" << i+1 << " {size: " << cluster_table[i].size();
+        output_file << " centroid: ";
+        current_point= point_vector_get_point(get_centroids_id(i)-1);
+        for (int j=1 ; j < dimensions ; j++) {
+            output_file <<  current_point[j]<< " ";
+        }
+        output_file << "}" << endl;
+    }
+    auto time_passed = std::chrono::duration_cast<std::chrono::seconds>(stop_time - start_time);
+    output_file << "clustering_time: " << time_passed.count() << " seconds" << endl;
+    output_file << "Silhouette: ";
+    print_silhouette(cluster_table, output_file);
+    if (complete_flag) {
+        for(int i=0 ; i < centroids_get_size() ; i++) {
+            output_file << "CLUSTER-" << i+1 << " {size: " << cluster_table[i].size();
+            output_file << " centroid: [";
+            current_point= point_vector_get_point(get_centroids_id(i)-1);
+            for (int j=1 ; j < dimensions ; j++) {
+                output_file << current_point[j] << " ";
+            }
+            output_file << "]";
+            output_file << ", ";
+            for (int j= 0; j < cluster_table[i].size(); j++) {
+                output_file << cluster_table[i][j] << " ";
+            }
+            output_file << "}" << endl;
+        }
+    }
 }
 
 void reverse_assignment_cube(G_Hypercube g, int k, int probes){
@@ -265,6 +303,7 @@ void reverse_assignment_cube(G_Hypercube g, int k, int probes){
     vector<pair<vector<int>,int>> points_in_range; //ALL THE POINTS THAT ARE INSIDE THE GIVEN RADIUS FROM EVERY CENTROID
     vector<vector<int>> cluster_table;
     vector<int> hashes;
+    vector<int> current_point;
     int radius = centroids_get_radii();  //SET MINIMUM DISTANCE BETWEEN CENTROIDS DIVIDED BY 2 AS FIRST RADIUS
     int last_id = point_vector_get_size();
     bool first_iteration = true;
