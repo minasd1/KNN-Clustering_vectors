@@ -34,6 +34,7 @@ int main(int argc, char* argv[]){
     int M_cube ;                    //MAX NUMBER OF CANDIDATE POINTS TO BE CHECKED
     int window= 100;
     int k_cluster ;
+    bool complete= false;
 
     fstream input_file;             //FILE WE READ INPUT FROM
     fstream query_file;             //FILE WE READ QUERIES FROM
@@ -64,7 +65,7 @@ int main(int argc, char* argv[]){
     vector<dist_id_pair> points_lsh, points_cube, points_brute;
 
     int error= read_cmd_args(argc, argv, input_file_name, query_file_name, k, k_cube, L,
-                             output_file_name, N, R, M_cube, probes, config_file_name, method);
+                             output_file_name, N, R, M_cube, probes, config_file_name, method, complete);
     if (error) {
         return -1;
     }
