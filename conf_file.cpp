@@ -21,10 +21,10 @@ void read_configuration_file(fstream& config_file, string config_file_name, int&
 
             finish = line.size();
 
+            //CAPTURE THE TOKENS IN EVERY LINE OF THE CONFIGURATION FILE
             token_text= line.substr(0, start-1);
-            cout << "token_text= " << token_text << endl;
             token_number = line.substr(start, finish - start);
-            cout << "token_number= " << token_number << endl;
+            //INITIALIZE THE CORRESPONDING VARIABLE ACCORDING TO THE TOKENS CAPTURED
             if(token_text == "number_of_clusters"){
                 k_cluster = stoi(token_number);
             }
