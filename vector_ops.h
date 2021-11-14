@@ -70,7 +70,9 @@ void centroids_print_data();
 
 /*-----------------------IS ASSIGNED VECTOR FUNCTIONS-----------------------*/
 void is_assigned_initialize();
+int is_assigned_get_size();
 int is_assigned_count_assigned();
+int is_assigned_count_unassigned();
 void mark_as_assigned(int index);
 bool already_assigned(int index);
 void partition_assigned_unassigned(pair<vector<int>,int>& points_in_range);

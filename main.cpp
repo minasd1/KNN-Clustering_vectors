@@ -306,7 +306,7 @@ int main(int argc, char* argv[]){
             }
             else if(method == "hypercube"){
 
-                reverse_assignment_cube(g_cube, k_cluster, probes);
+                reverse_assignment_cube(g_cube, output_file, k_cluster, probes, complete);
             }
 
             continue_execution = 0;
