@@ -103,14 +103,14 @@ int main(int argc, char* argv[]){
     is_assigned_initialize();
 
     if(strcmp(argv[0], "./cluster") == 0){
-        
+
         read_configuration_file(config_file, config_file_name, k_cluster, L, k, M_cube, k_cube, probes);
     }
     cout << "k_cluster: " << k_cluster << endl;
     cout << "L: " << L << endl;
     cout << "k: " << k << endl;
     cout << "M_cube: " << M_cube << endl;
-    cout << "k_cube" << k_cube << endl;
+    cout << "k_cube: " << k_cube << endl;
     cout << "probes: " << probes << endl;
 
     initialize_points_ID_vector(number_of_points, L);
@@ -137,9 +137,9 @@ int main(int argc, char* argv[]){
 
         hash_vector.clear();
     }
-    
+
     if(strcmp(argv[0], "./cube") == 0 || ((strcmp(argv[0], "./cluster") == 0) && (method == "hypercube"))){
-        
+
         //INITIALIZE A HYPERCUBE WITH 2^D' BUCKETS AND ZERO POINTS IN EACH BUCKET
         hyperCube_initialization(pow(2, k_cube));
 
