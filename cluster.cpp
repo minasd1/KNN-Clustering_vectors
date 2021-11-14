@@ -84,7 +84,7 @@ void lloyds(int number_of_clusters, fstream& output_file, bool complete_flag)
         }
         previous_cluster_table= new_cluster_table;
         change_rate= float(changes_made)/float(num_of_points);
-        cout << "Change rate= " << change_rate << endl;
+        
     }
     //WHEN THE CLUSTERS HAVE BEEN DEFINITIVELY FORMED STOP COUNTING TIME
     auto stop_time = std::chrono::high_resolution_clock::now();
@@ -163,7 +163,6 @@ void reverse_assignment_lloyds(vector<vector<int>>& cluster_table, int number_of
         }
         previous_cluster_table= new_cluster_table;
         change_rate= float(changes_made)/float(num_of_unassigned_points);
-        cout << "Change rate= " << change_rate << endl;
 
         if(change_rate <= 0.01){
             break;
@@ -178,11 +177,6 @@ void reverse_assignment_lloyds(vector<vector<int>>& cluster_table, int number_of
             cluster_table[i].insert(cluster_table[i].end(), previous_cluster_table[i].begin(),
                                                                             previous_cluster_table[i].end());
     }
-    int count1 = 0;
-    for(int i = 0; i < previous_cluster_table.size(); i++){
-        count1 += previous_cluster_table[i].size();
-    }
-    cout << "number of points assigned with lloyd's is " << count1 << endl;
     
 }
 
@@ -276,21 +270,8 @@ void reverse_assignment_lsh(G_Lsh g, fstream& output_file, int k, bool complete_
 
     }while(1);
 
-    cout << "assigned points are" << is_assigned_count_assigned() << endl;
-    int count2 = 0;
-    for(int i = 0; i < cluster_table.size(); i++){
-        count2+= cluster_table[i].size();
-    } 
-    cout << "assigned points second way is" << count2 << endl;
-
     //ASSIGN THE REST OF THE POINTS THAT HAVE NOT BEEN ASSIGNED TO CLUSTERS USING LLOYD'S ALGORITHM
     reverse_assignment_lloyds(cluster_table, k, num_of_points, last_id);
-    int count1 = 0;
-    for(int i = 0; i < cluster_table.size(); i++){
-        count1+= cluster_table[i].size();
-    }
-    cout << "total number of points is " << count1 << endl;
-    cout << "cluster table size is " << cluster_table.size() << endl;
 
     //WHEN THE CLUSTERS HAVE BEEN DEFINITIVELY FORMED STOP COUNTING TIME
     auto stop_time = std::chrono::high_resolution_clock::now();
@@ -309,7 +290,7 @@ void reverse_assignment_lsh(G_Lsh g, fstream& output_file, int k, bool complete_
     auto time_passed = std::chrono::duration_cast<std::chrono::seconds>(stop_time - start_time);
     output_file << "clustering_time: " << time_passed.count() << " seconds" << endl;
     output_file << "Silhouette: ";
-    //print_silhouette(cluster_table, output_file);
+    print_silhouette(cluster_table, output_file);
     if (complete_flag) {
         for(int i=0 ; i < centroids_get_size() ; i++) {
             output_file << "CLUSTER-" << i+1 << " {size: " << cluster_table[i].size();
@@ -358,10 +339,10 @@ void reverse_assignment_cube(G_Hypercube g, fstream& output_file, int k, int pro
             centroid = point_vector_get_point(centroids_get_centroid(i) - 1);
             //AND PERFORM HYPERCUBE RANGE SEARCH
             if(first_iteration){ //0 IS THE FIRST INDEX OF AN UNASSIGNED POINT AT START - ALL POINTS UNASSIGNED
-                points_in_range.push_back(make_pair(cube_range_search(hashes[i], radius, probes, dimensions, centroid), 0));
+                points_in_range.push_back(make_pair(reverse_cube_range_search(hashes[i], radius, probes, dimensions, centroid), 0));
             }
             else{
-                appending_points = cube_range_search(hashes[i], radius, probes, dimensions, centroid);
+                appending_points = reverse_cube_range_search(hashes[i], radius, probes, dimensions, centroid);
                 points_in_range[i].first.insert(points_in_range[i].first.end(), appending_points.begin(),
                                                                                     appending_points.end());
                 appending_points.clear();
@@ -381,7 +362,7 @@ void reverse_assignment_cube(G_Hypercube g, fstream& output_file, int k, int pro
             //GET CENTROID'S COORDINANCES BY ACCESSING THE POINT VECTOR DATA
             centroid = point_vector_get_point(centroids_get_centroid(i) - 1);
             //AND PERFORM RANGE SEARCH - 0 IS THE FIRST INDEX OF AN UNASSIGNED POINT AT START
-            appending_points = cube_range_search(hashes[i], radius, probes, dimensions, centroid);
+            appending_points = reverse_cube_range_search(hashes[i], radius, probes, dimensions, centroid);
 
             points_in_range[i].first.insert(points_in_range[i].first.end(), appending_points.begin(),
                                                                                     appending_points.end());
@@ -411,22 +392,8 @@ void reverse_assignment_cube(G_Hypercube g, fstream& output_file, int k, int pro
 
     }while(1);
 
-    cout << "assigned points are " << is_assigned_count_assigned() << endl;
-    int count2 = 0;
-    for(int i = 0; i < cluster_table.size(); i++){
-        count2+= cluster_table[i].size();
-    } 
-    cout << "assigned points second way is" << count2 << endl;
-    cout << "is assigned size is" << is_assigned_get_size() << endl;
-
     //ASSIGN THE REST OF THE POINTS THAT HAVE NOT BEEN ASSIGNED TO CLUSTERS USING LLOYD'S ALGORITHM
     reverse_assignment_lloyds(cluster_table, k, num_of_points, last_id);
-    int count1 = 0;
-    for(int i = 0; i < cluster_table.size(); i++){
-        count1+= cluster_table[i].size();
-    }
-    cout << "total number of points is " << count1 << endl;
-    cout << "cluster table size is " << cluster_table.size() << endl;
 
     //WHEN THE CLUSTERS HAVE BEEN DEFINITIVELY FORMED STOP COUNTING TIME
     auto stop_time = std::chrono::high_resolution_clock::now();
@@ -445,7 +412,7 @@ void reverse_assignment_cube(G_Hypercube g, fstream& output_file, int k, int pro
     auto time_passed = std::chrono::duration_cast<std::chrono::seconds>(stop_time - start_time);
     output_file << "clustering_time: " << time_passed.count() << " seconds" << endl;
     output_file << "Silhouette: ";
-    //print_silhouette(cluster_table, output_file);
+    print_silhouette(cluster_table, output_file);
     if (complete_flag) {
         for(int i=0 ; i < centroids_get_size() ; i++) {
             output_file << "CLUSTER-" << i+1 << " {size: " << cluster_table[i].size();

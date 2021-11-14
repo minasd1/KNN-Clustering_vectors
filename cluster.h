@@ -11,6 +11,7 @@
 #include "vector_ops.h"
 #include "hashTable.h"
 #include "hypercube.h"
+#include "reverse_auxiliary.h"
 
 using namespace std;
 

@@ -18,6 +18,7 @@
 #include "cube.h"
 #include "cluster.h"
 #include "conf_file.h"
+#include "reverse_auxiliary.h"
 
 
 using namespace std;
@@ -109,12 +110,6 @@ int main(int argc, char* argv[]){
 
         read_configuration_file(config_file, config_file_name, k_cluster, L, k, M_cube, k_cube, probes);
     }
-    cout << "k_cluster: " << k_cluster << endl;
-    cout << "L: " << L << endl;
-    cout << "k: " << k << endl;
-    cout << "M_cube: " << M_cube << endl;
-    cout << "k_cube: " << k_cube << endl;
-    cout << "probes: " << probes << endl;
 
     initialize_points_ID_vector(number_of_points, L);
 
@@ -141,7 +136,7 @@ int main(int argc, char* argv[]){
         hash_vector.clear();
     }
 
-    if(strcmp(argv[0], "./cube") == 0 || ((strcmp(argv[0], "./cluster") == 0) && (method == "hypercube"))){
+    if((strcmp(argv[0], "./cube") == 0) || ((strcmp(argv[0], "./cluster") == 0) && (method == "hypercube"))){
 
         //INITIALIZE A HYPERCUBE WITH 2^D' BUCKETS AND ZERO POINTS IN EACH BUCKET
         hyperCube_initialization(pow(2, k_cube));
@@ -157,7 +152,7 @@ int main(int argc, char* argv[]){
     while(continue_execution == 1){
 
         if(strcmp(argv[0], "./lsh") == 0 || strcmp(argv[0], "./cube") == 0){
-            cout << "query file name is" << query_file_name << endl;
+            
             //OPEN FILE TO READ QUERY FILES FROM
             open_file(&query_file, query_file_name, fstream::in);
 
@@ -218,7 +213,7 @@ int main(int argc, char* argv[]){
                     output_file << "tTrue: " << time_brute.count() << " microseconds" << endl;
 
                     //LSH RANGE SEARCH
-                    vector<int> points_in_range = lsh_range_search(hash_vector, 1000, query_point);
+                    vector<int> points_in_range = lsh_range_search(hash_vector, R, query_point);
 
                     output_file << "R-near neighbors:" << endl;
 
@@ -247,6 +242,7 @@ int main(int argc, char* argv[]){
                     points_brute= find_exact_knn(query_point, N, number_of_points);
                     auto stop_time2 = std::chrono::high_resolution_clock::now();
                     auto time_brute = std::chrono::duration_cast<std::chrono::microseconds>(stop_time2 - start_time2);
+                    
                     // //PRINTING IN OUTPUT FILE
                     for (i= 1; i <= N ; i++) {
                         //IF NO POINTS FOUND
@@ -271,7 +267,8 @@ int main(int argc, char* argv[]){
                     output_file << "tTrue: " << time_brute.count() << " microseconds" << endl;
                     //-----------------
                     //HYPERCUBE RANGE SEARCH
-                    vector<int> points_in_range = cube_range_search(hash_value, 1000, probes, k_cube, query_point);
+                    vector<int> points_in_range = cube_range_search(hash_value, R, probes, k_cube, query_point);
+                    
                     output_file << "R-near neighbors:" << endl;
 
                     //PRINT IDS OF POINTS IN RANGE
