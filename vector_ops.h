@@ -65,6 +65,7 @@ int get_centroids_id(int i);
 void set_centroids_id(vector<int> v);
 void centroids_get_hashtable_hashes(G_Lsh g, vector<vector<int>>& hashes);
 void centroids_get_hypercube_hashes(G_Hypercube g, vector<int>& hashes);
+void centroids_label_as_assigned();
 void centroids_clear();
 void centroids_print_data();
 
