@@ -310,7 +310,7 @@ void centroids_duplicates_assign_to_nearest_centroid(vector<pair<vector<int>,int
     //FOR ALL THE CENTROIDS
     for(int i = 0; i < points_in_range.size(); i++){
         //FOR ALL THE POINTS ASSIGNED TO THEM
-        for(int k = 0; k < points_in_range[i].first.size(); k++){//k = points_in_range[i].second
+        for(int k = 0; k < points_in_range[i].first.size(); k++){
             
             centroids_with_same_id.push_back(centroids_get_centroid(i));
             //FOR ALL THE OTHER CENTROIDS
@@ -627,14 +627,14 @@ bool already_exists(vector<int>& ids, int id){
 //REMOVE POINT ID FROM ALL THE CLUSTERS OF CENTROID'S THAT DO NOT HAVE MINIMUM DISTANCE WITH IT
 void update_points_in_range(pair<vector<int>,int>& points_in_range, int id){
 
-    points_in_range.first.erase(std::remove(points_in_range.first.begin(), //+ points_in_range.second 
+    points_in_range.first.erase(std::remove(points_in_range.first.begin(),
     points_in_range.first.end(), id), points_in_range.first.end());
 }
 
 //SEARCH IF A POINT ID IS IN ASSIGNED TO A CENTROID - CLUSTERING
 void search_if_in_range(pair<vector<int>,int>& points_in_range, vector<int>& centroid, int id, int num){
     //FOR ALL THE POINTS IN RANGE THAT HAVE NOT ALREADY BEEN ASSIGNED
-    for(int i = 0; i < points_in_range.first.size(); i++){//i = points_in_range.second
+    for(int i = 0; i < points_in_range.first.size(); i++){
         //IF GIVEN POINT ID IS ASSIGNED TO THIS CENTROID
         if(points_in_range.first[i] == id){
             //ADD THE CENTROID TO CENTROIDS WITH SAME ID

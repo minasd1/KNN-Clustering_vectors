@@ -157,7 +157,7 @@ int main(int argc, char* argv[]){
     while(continue_execution == 1){
 
         if(strcmp(argv[0], "./lsh") == 0 || strcmp(argv[0], "./cube") == 0){
-
+            cout << "query file name is" << query_file_name << endl;
             //OPEN FILE TO READ QUERY FILES FROM
             open_file(&query_file, query_file_name, fstream::in);
 
@@ -310,10 +310,9 @@ int main(int argc, char* argv[]){
             }
 
             continue_execution = 0;
-        }
 
-        // read_user_input(query_file_name, &continue_execution);
-        close_file(&output_file);
+            close_file(&output_file);
+        }
 
 
     }
